@@ -12,6 +12,7 @@ import { AdminPortal } from './components/AdminPortal';
 import {
   AUSTRALIAN_POSTCODES,
   PostcodeRecord,
+  searchPostcodes,
 } from './data/australianPostcodes';
 import {
   calculateQuote,
@@ -32,6 +33,22 @@ import {
   StorageDuration,
 } from './types/quote';
 
+/**
+ * The postcode boxes on portabox.au hand off to this app, carrying what the
+ * visitor already typed as ?postcode=3000. Without this the app opened on its
+ * built-in default and asked them for it a second time.
+ *
+ * searchPostcodes resolves anything valid: one of the 63 known suburbs, or a
+ * synthetic record placed by state range. Anything else is ignored and the
+ * default stands, so a junk parameter cannot break the opening screen.
+ */
+function postcodeFromUrl(): PostcodeRecord | null {
+  if (typeof window === 'undefined') return null;
+  const raw = new URLSearchParams(window.location.search).get('postcode');
+  if (!raw || !/^\d{4}$/.test(raw.trim())) return null;
+  return searchPostcodes(raw.trim())[0] || null;
+}
+
 export default function App() {
   // App Config & Persistent Leads
   const [config, setConfig] = useState<AppConfig>(loadAppConfig());
@@ -49,7 +66,7 @@ export default function App() {
   } | null>(null);
 
   const [originPostcode, setOriginPostcode] = useState<PostcodeRecord | null>(
-    AUSTRALIAN_POSTCODES[0] // 5061 Hyde Park SA
+    postcodeFromUrl() || AUSTRALIAN_POSTCODES[0] // 5061 Hyde Park SA
   );
   const [destinationPostcode, setDestinationPostcode] = useState<PostcodeRecord | null>(null);
   const [serviceType, setServiceType] = useState<ServiceType>('storage_at_place');
