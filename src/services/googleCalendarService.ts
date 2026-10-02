@@ -11,8 +11,19 @@ import firebaseConfig from '../../firebase-applet-config.json';
 import { DeliverySlotWindow, DepotCalendarConfig, MetroHub } from '../types/quote';
 
 // 1. Initialize Firebase App (safe reuse)
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-export const auth = getAuth(app);
+//
+// The Google Calendar slots are optional — firebase-applet-config.json ships
+// blank and the app is meant to fall back to the static delivery windows. It
+// did not: initializeApp throws auth/invalid-api-key on an empty key, and
+// because this runs at module scope the throw landed before React mounted and
+// took the whole page down with it. Firebase is now only touched when a real
+// config is present, and everything below treats a null auth as "signed out".
+const hasFirebaseConfig = Boolean(firebaseConfig?.apiKey && firebaseConfig?.projectId);
+const app = hasFirebaseConfig
+  ? (getApps().length === 0 ? initializeApp(firebaseConfig) : getApp())
+  : null;
+export const auth = app ? getAuth(app) : null;
+export const isCalendarConfigured = hasFirebaseConfig;
 
 // 2. Configure Google Auth Provider with Google Calendar Scope
 const provider = new GoogleAuthProvider();
@@ -103,6 +114,12 @@ export const initCalendarAuth = (
   onAuthSuccess?: (user: User, token: string) => void,
   onAuthFailure?: () => void
 ) => {
+  // No Firebase project configured: report signed-out once and do nothing more,
+  // which is what sends DeliverySlotPicker to the static windows.
+  if (!auth) {
+    if (onAuthFailure) onAuthFailure();
+    return () => {};
+  }
   return onAuthStateChanged(auth, async (user: User | null) => {
     if (user && cachedAccessToken) {
       if (onAuthSuccess) onAuthSuccess(user, cachedAccessToken);
@@ -117,6 +134,11 @@ export const initCalendarAuth = (
  * Sign in with Google to grant Calendar access
  */
 export const signInWithGoogleCalendar = async (): Promise<{ user: User; accessToken: string }> => {
+  if (!auth) {
+    throw new Error(
+      'Google Calendar is not configured. Fill in firebase-applet-config.json to enable it.'
+    );
+  }
   try {
     isSigningIn = true;
     const result = await signInWithPopup(auth, provider);
@@ -139,7 +161,7 @@ export const getCalendarAccessToken = (): string | null => {
 };
 
 export const signOutCalendar = async () => {
-  await signOut(auth);
+  if (auth) await signOut(auth);
   cachedAccessToken = null;
 };
 

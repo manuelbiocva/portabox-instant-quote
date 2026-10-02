@@ -85,7 +85,7 @@ the main site.
 
 ## Changes made to the supplied source
 
-Two, both small:
+Three:
 
 - **Dropped the explicit `esbuild@^0.25.0` devDependency.** It conflicted with
   `vite@8`, which wants `^0.27 || ^0.28`, and `npm install` failed outright with
@@ -93,6 +93,13 @@ Two, both small:
 - **Blanked `firebase-applet-config.json`**, as above. It is imported statically
   by `googleCalendarService.ts`, so the file has to exist for the build to
   succeed; it ships with empty values rather than being ignored.
+- **Made Firebase genuinely optional** in `googleCalendarService.ts`. The
+  calendar was documented as falling back to static delivery slots without a
+  config, and it did not: `initializeApp` throws `auth/invalid-api-key` on an
+  empty key, and because that call sits at module scope the throw landed before
+  React mounted. The result was a blank page and one console error. Firebase is
+  now only initialised when a real config is present, and the three call sites
+  treat a null `auth` as signed out.
 
 Everything else is the source as delivered.
 
