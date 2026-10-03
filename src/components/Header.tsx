@@ -44,9 +44,9 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="w-full bg-[#f0f4f8] border-b border-slate-200/80 sticky top-0 z-30 backdrop-blur-md bg-opacity-95">
-      <div className="max-w-6xl mx-auto py-2 sm:py-3.5 px-3 sm:px-8 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto py-2 sm:py-3.5 px-3 sm:px-8 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
         {/* Left: Back button (heads back to previous step or triggers cancel quote to return to website) */}
-        <div className="w-16 sm:w-32 flex items-center">
+        <div className="flex items-center justify-start">
           <button
             onClick={handleBackClick}
             aria-label={currentStep === 1 && !isAdminOpen && !isCallCenterOpen ? "Cancel quote and return to website" : "Previous step"}
@@ -71,15 +71,16 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Right: Direct High-Converting Phone Call Button & Optional Discreet Desktop Staff Access */}
-        <div className="w-16 sm:w-32 flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-1.5 sm:gap-2">
           {onOpenPortalHub && (
             <button
               onClick={onOpenPortalHub}
               title="Staff & Management Portals"
               aria-label="Staff & Management Portals"
-              className="hidden lg:flex w-8 h-8 rounded-full border border-slate-200/90 bg-white hover:bg-slate-100 text-slate-400 hover:text-slate-700 items-center justify-center transition-colors cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-white shadow-xs border border-slate-200 text-slate-700 hover:text-slate-950 hover:border-slate-300 transition-all cursor-pointer active:scale-95 text-xs sm:text-sm font-bold"
             >
-              <Lock className="w-3.5 h-3.5" />
+              <Lock className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.5]" />
+              <span className="hidden sm:inline">Staff</span>
             </button>
           )}
 

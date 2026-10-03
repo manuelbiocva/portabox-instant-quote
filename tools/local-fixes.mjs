@@ -225,6 +225,42 @@ fix(
   )
 );
 
+/* -- 8. the staff button -------------------------------------------------
+   Ships as a 32px icon-only circle in slate-400, desktop only, with no label
+   — easy to miss, and invisible to staff on a phone or tablet. It is the only
+   way into the admin, dispatch and customer views, so it is given the same
+   pill treatment as the Back button opposite it, a "Staff" label from sm up,
+   and presence at every width.
+
+   Widening it pushed the logo off centre, because the header used
+   space-between with fixed-width sides: the logo drifts by half the
+   difference between them. A three-column grid with 1fr either side holds it
+   centred whatever the buttons do. */
+fix(
+  'header: make the staff button visible, and keep the logo centred',
+  'src/components/Header.tsx',
+  (s) => s.includes('grid-cols-[1fr_auto_1fr]') && !s.includes('hidden lg:flex w-8 h-8'),
+  (s) => {
+    let out = s.replace(
+      'className="hidden lg:flex w-8 h-8 rounded-full border border-slate-200/90 bg-white hover:bg-slate-100 text-slate-400 hover:text-slate-700 items-center justify-center transition-colors cursor-pointer shadow-2xs"\n            >\n              <Lock className="w-3.5 h-3.5" />',
+      'className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-white shadow-xs border border-slate-200 text-slate-700 hover:text-slate-950 hover:border-slate-300 transition-all cursor-pointer active:scale-95 text-xs sm:text-sm font-bold"\n            >\n              <Lock className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.5]" />\n              <span className="hidden sm:inline">Staff</span>'
+    );
+    out = out.replace(
+      /(max-w-6xl mx-auto py-2 sm:py-3\.5 px-3 sm:px-8 )flex items-center justify-between/,
+      '$1grid grid-cols-[1fr_auto_1fr] items-center gap-2'
+    );
+    out = out.replace(
+      '<div className="w-16 sm:w-32 flex items-center">',
+      '<div className="flex items-center justify-start">'
+    );
+    out = out.replace(
+      '<div className="w-16 sm:w-32 flex items-center justify-end gap-2">',
+      '<div className="flex items-center justify-end gap-1.5 sm:gap-2">'
+    );
+    return out;
+  }
+);
+
 /* -- report --------------------------------------------------------------- */
 const line = (mark, xs) => xs.forEach((x) => console.log(`  ${mark} ${x}`));
 if (applied.length) { console.log('applied:'); line('+', applied); }
