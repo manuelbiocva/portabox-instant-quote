@@ -11,6 +11,9 @@ import { Step6Confirmation } from './components/Step6Confirmation';
 import { AdminPortal } from './components/AdminPortal';
 import { CustomerPortal } from './components/CustomerPortal';
 import { CallCenterCalendarPortal } from './components/CallCenterCalendarPortal';
+import { CancelQuoteModal } from './components/CancelQuoteModal';
+import { PortalHubModal } from './components/PortalHubModal';
+import { Lock } from 'lucide-react';
 import { upsertCustomerFromLead } from './services/customerPortalService';
 import { autoSyncEventToSmartsheet } from './services/smartsheetService';
 import {
@@ -38,11 +41,9 @@ import {
 } from './types/quote';
 
 /**
- * The postcode boxes on the website hand off to this app, carrying what the
- * visitor already typed as ?postcode=3000. Without this the app opens on its
- * built-in default and asks them for it a second time.
+ * The website's postcode boxes hand off here as ?postcode=3000.
  *
- * searchPostcodes resolves anything valid: one of the 63 known suburbs, or a
+ * searchPostcodes resolves anything valid: one of the known suburbs, or a
  * synthetic record placed by state range. Anything else is ignored and the
  * default stands, so a junk parameter cannot break the opening screen.
  */
@@ -60,6 +61,23 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isCustomerPortalOpen, setIsCustomerPortalOpen] = useState(false);
   const [isCallCenterOpen, setIsCallCenterOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isPortalHubOpen, setIsPortalHubOpen] = useState(false);
+
+  // Keyboard shortcut for staff access (Ctrl+Shift+A for Admin, Ctrl+Shift+P for Portal Hub)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        setIsAdminOpen((prev) => !prev);
+      } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        setIsPortalHubOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Quote Flow State
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -309,7 +327,8 @@ export default function App() {
       {/* Top Header */}
       <Header
         currentStep={currentStep}
-        onBack={handleBack}
+        onBackStep={handleBack}
+        onCancelQuote={() => setIsCancelModalOpen(true)}
         isAdminOpen={isAdminOpen}
         onToggleAdmin={() => {
           setIsAdminOpen(!isAdminOpen);
@@ -325,11 +344,12 @@ export default function App() {
             : undefined
         }
         onOpenCustomerPortal={() => setIsCustomerPortalOpen(true)}
+        onOpenPortalHub={() => setIsPortalHubOpen(true)}
         phone={config.phone}
       />
 
       {/* Main Body */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-8">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 py-2.5 sm:py-8">
         {/* If Call Center Dispatch is Open */}
         {isCallCenterOpen && config.enableCallCenterDispatch !== false ? (
           <CallCenterCalendarPortal
@@ -370,6 +390,7 @@ export default function App() {
                     initialPostcode={originPostcode}
                     onSelectPostcode={(p) => setOriginPostcode(p)}
                     onContinue={() => setCurrentStep(2)}
+                    onCancelQuote={() => setIsCancelModalOpen(true)}
                     config={config}
                   />
                 )}
@@ -458,9 +479,9 @@ export default function App() {
                 )}
               </div>
 
-              {/* Right Area: "YOUR QUOTE SO FAR" Tracker (hidden on Step 6) */}
+              {/* Right Area: "YOUR QUOTE SO FAR" Tracker (hidden on mobile and hidden on Step 6) */}
               {currentStep !== 6 && (
-                <div className="lg:col-span-4">
+                <div className="hidden lg:block lg:col-span-4">
                   <RightSidebar
                     currentStep={currentStep}
                     onJumpToStep={handleJumpToStep}
@@ -488,32 +509,50 @@ export default function App() {
         )}
       </main>
 
-      {/* Quiet, Clean Footer */}
-      <footer className="w-full bg-[#f0f4f8] py-8 border-t border-slate-200/80 mt-auto">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      {/* Quiet, Clean, High-Converting Consolidated Footer */}
+      <footer className="w-full bg-[#f0f4f8] py-3 sm:py-5 border-t border-slate-200/80 mt-auto">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4 text-xs text-slate-400">
           <div className="flex items-center gap-2">
             <span className="font-bold text-[#0b2942]">portabox</span>
             <span>·</span>
             <span>Moving & Portable Storage Containers Australia</span>
           </div>
 
-          <div className="flex items-center gap-6">
-            <span>Adelaide · Melbourne · Sydney · Brisbane · Sunshine Coast</span>
+          <div className="flex items-center gap-3 sm:gap-5">
+            <span className="hidden md:inline text-slate-400">Adelaide · Melbourne · Sydney · Brisbane · Sunshine Coast</span>
             <button
-              onClick={() => setIsCustomerPortalOpen(true)}
-              className="text-[#00c0f3] hover:underline font-semibold cursor-pointer"
+              onClick={() => setIsPortalHubOpen(true)}
+              className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors font-semibold py-1 px-2.5 rounded-lg hover:bg-slate-200/60 cursor-pointer"
+              title="Staff, Dispatch & Customer Portals"
             >
-              Customer Portal
-            </button>
-            <button
-              onClick={() => setIsAdminOpen(true)}
-              className="text-slate-600 hover:text-slate-900 font-semibold cursor-pointer"
-            >
-              Admin Portal
+              <Lock className="w-3 h-3 text-slate-400" />
+              <span>Staff & Portals</span>
             </button>
           </div>
         </div>
       </footer>
+
+      {/* Cancel Quote Confirmation Modal */}
+      <CancelQuoteModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={() => {
+          setIsCancelModalOpen(false);
+          handleResetQuote();
+        }}
+        websiteUrl={(import.meta.env.VITE_SITE_URL as string) || 'https://portabox-website.vercel.app/'}
+      />
+
+      {/* Unified Portal Hub Modal (Consolidates Customer Portal, Dispatch, & Admin) */}
+      <PortalHubModal
+        isOpen={isPortalHubOpen}
+        onClose={() => setIsPortalHubOpen(false)}
+        onOpenCustomerPortal={() => setIsCustomerPortalOpen(true)}
+        onOpenCallCenter={() => setIsCallCenterOpen(true)}
+        onOpenAdmin={() => setIsAdminOpen(true)}
+        isCallCenterEnabled={config.enableCallCenterDispatch !== false}
+        phone={config.phone}
+      />
 
       {/* Customer Portal Modal */}
       <CustomerPortal

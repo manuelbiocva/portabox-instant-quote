@@ -208,9 +208,13 @@ export const Step5Quote: React.FC<Step5QuoteProps> = ({
   const totalSavedDisplay = (billingUpfrontSavings > 0 ? billingUpfrontSavings : monthlyCubicSavings) + excessDeliveryCharges + (quote.totalDiscount || 0);
 
   return (
-    <div className="final-quote-container bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 lg:p-10 shadow-xs border border-slate-200/80 animate-in fade-in duration-200">
+    <div className="final-quote-container bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-8 lg:p-10 shadow-xs border border-slate-200/80 animate-in fade-in duration-200">
       {/* Top action row */}
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-between gap-2 mb-1">
+        <span className="text-[11px] sm:text-xs font-extrabold uppercase tracking-widest text-[#00c0f3] font-['Cabinet_Grotesk',sans-serif] flex items-center gap-1.5">
+          <span>—</span>
+          <span>YOUR INSTANT QUOTE</span>
+        </span>
         <button
           onClick={onResetQuote}
           className="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -220,18 +224,18 @@ export const Step5Quote: React.FC<Step5QuoteProps> = ({
         </button>
       </div>
 
-      <h1 className="text-2xl sm:text-4xl font-extrabold text-[#0b2942] tracking-tight mt-1 mb-1">
+      <h1 className="text-xl sm:text-4xl font-extrabold text-[#0b2942] tracking-tight mt-0.5 sm:mt-1 mb-1 leading-tight">
         Here's your instant quote
       </h1>
 
       {customerData && (
-        <p className="text-xs text-slate-500 mb-4">
+        <p className="text-xs text-slate-500 mb-3 sm:mb-4">
           Quote sent to <strong className="text-slate-800">{customerData.email}</strong> and <strong className="text-slate-800">{customerData.mobile}</strong>
         </p>
       )}
 
       {/* Hero Payment Banner with Total Saved */}
-      <div className="mt-4 rounded-3xl bg-[#00c0f3] text-white p-6 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+      <div className="mt-3 sm:mt-4 rounded-2xl sm:rounded-3xl bg-[#00c0f3] text-white p-4 sm:p-6 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-5">
         <div>
           <p className="text-xs sm:text-sm font-bold text-sky-100 uppercase tracking-wider">
             Your first payment

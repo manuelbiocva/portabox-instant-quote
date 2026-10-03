@@ -199,21 +199,22 @@ export const Step2What: React.FC<Step2WhatProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 lg:p-10 shadow-xs border border-slate-200/80">
+    <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-8 lg:p-10 shadow-xs border border-slate-200/80">
       {/* Header kicker */}
-      <span className="text-xs font-extrabold uppercase tracking-widest text-[#00c0f3] font-['Cabinet_Grotesk',sans-serif]">
-        INSTANT QUOTE
+      <span className="text-[11px] sm:text-xs font-extrabold uppercase tracking-widest text-[#00c0f3] font-['Cabinet_Grotesk',sans-serif] flex items-center gap-1.5">
+        <span>—</span>
+        <span>INSTANT QUOTE</span>
       </span>
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-1 mb-3">
-        <h1 className="text-2xl sm:text-4xl font-extrabold text-[#0b2942] tracking-tight">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 mt-0.5 sm:mt-1 mb-2 sm:mb-3">
+        <h1 className="text-xl sm:text-4xl font-extrabold text-[#0b2942] tracking-tight leading-tight">
           What do you need?
         </h1>
 
         {/* Selected location pill */}
         <button
           onClick={onChangeLocation}
-          className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-full transition-colors cursor-pointer self-start sm:self-auto"
+          className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors cursor-pointer self-start sm:self-auto"
         >
           <span className="text-[#00c0f3] font-bold">✓</span>
           <span>{originPostcode.suburb}, {originPostcode.state} {originPostcode.postcode}</span>
@@ -222,21 +223,21 @@ export const Step2What: React.FC<Step2WhatProps> = ({
       </div>
 
       {/* 3 Main Choice Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-5 mt-2.5 sm:mt-6">
         {/* Card 1: Moving */}
         <div
           onClick={() => {
             onSelectServiceType('moving');
             setValidationError(null);
           }}
-          className={`group rounded-2xl border-2 transition-all p-4 flex flex-col justify-between cursor-pointer ${
+          className={`group rounded-xl sm:rounded-2xl border-2 transition-all p-2.5 sm:p-4 flex flex-row md:flex-col items-center md:items-stretch justify-between gap-3 cursor-pointer ${
             serviceType === 'moving'
-              ? 'border-[#00c0f3] bg-sky-50/20 shadow-md ring-2 ring-[#00c0f3]/20'
+              ? 'border-[#00c0f3] bg-sky-50/20 shadow-xs sm:shadow-md ring-2 ring-[#00c0f3]/20'
               : 'border-slate-200 hover:border-slate-300 bg-white hover:shadow-xs'
           }`}
         >
-          <div>
-            <div className="aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 mb-4 relative">
+          <div className="flex flex-row md:flex-col items-center md:items-start gap-3 w-full">
+            <div className="w-14 h-14 sm:w-full sm:aspect-[4/3] rounded-lg sm:rounded-xl overflow-hidden bg-slate-100 shrink-0 relative">
               <img
                 src={PORTABOX_IMAGES.moving}
                 alt="Portabox moving truck"
@@ -244,17 +245,30 @@ export const Step2What: React.FC<Step2WhatProps> = ({
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
             </div>
-            <h3 className="text-lg font-extrabold text-[#0b2942]">Moving</h3>
-            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-              We deliver, you pack, we move it door to door. Local or interstate.
-            </p>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm sm:text-lg font-extrabold text-[#0b2942]">Moving</h3>
+                <div className="md:hidden">
+                  <div
+                    className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                      serviceType === 'moving' ? 'bg-[#00c0f3] text-white font-bold' : 'border border-slate-300'
+                    }`}
+                  >
+                    {serviceType === 'moving' && '✓'}
+                  </div>
+                </div>
+              </div>
+              <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 sm:mt-2 leading-tight sm:leading-relaxed">
+                We deliver, you pack, we move it door to door.
+              </p>
+            </div>
           </div>
 
           <button
             type="button"
-            className={`w-full mt-5 py-2.5 rounded-xl font-bold text-xs tracking-wide transition-all cursor-pointer ${
+            className={`hidden md:block w-full mt-5 py-2.5 rounded-xl font-black text-xs tracking-wide transition-all cursor-pointer ${
               serviceType === 'moving'
-                ? 'bg-[#0b2942] text-white shadow-xs'
+                ? 'bg-[#ffd000] text-[#0f3353] border border-amber-300 shadow-xs'
                 : 'border border-slate-300 text-slate-700 group-hover:bg-slate-50'
             }`}
           >
@@ -268,35 +282,55 @@ export const Step2What: React.FC<Step2WhatProps> = ({
             onSelectServiceType(storagePlacement === 'my_place' ? 'storage_at_place' : 'storage_facility');
             setValidationError(null);
           }}
-          className={`group rounded-2xl border-2 transition-all p-4 flex flex-col justify-between cursor-pointer relative ${
+          className={`group rounded-xl sm:rounded-2xl border-2 transition-all p-2.5 sm:p-4 flex flex-row md:flex-col items-center md:items-stretch justify-between gap-3 cursor-pointer relative ${
             serviceType === 'storage_at_place' || serviceType === 'storage_facility'
-              ? 'border-[#00c0f3] bg-sky-50/20 shadow-md ring-2 ring-[#00c0f3]/20'
+              ? 'border-[#00c0f3] bg-sky-50/20 shadow-xs sm:shadow-md ring-2 ring-[#00c0f3]/20'
               : 'border-slate-200 hover:border-slate-300 bg-white hover:shadow-xs'
           }`}
         >
-          <div>
-            <div className="aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 mb-4 relative">
+          <div className="flex flex-row md:flex-col items-center md:items-start gap-3 w-full">
+            <div className="w-14 h-14 sm:w-full sm:aspect-[4/3] rounded-lg sm:rounded-xl overflow-hidden bg-slate-100 shrink-0 relative">
               <img
                 src={PORTABOX_IMAGES.storage}
                 alt="Portabox storage customers"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
-              <span className="absolute top-2 right-2 bg-[#00c0f3] text-white font-extrabold text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-md shadow-xs">
+              <span className="hidden sm:inline-block absolute top-2 right-2 bg-[#00c0f3] text-white font-extrabold text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-md shadow-xs">
                 MOST POPULAR
               </span>
             </div>
-            <h3 className="text-lg font-extrabold text-[#0b2942]">Storage</h3>
-            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-              Keep it at your place with the only keys, or we collect and store it.
-            </p>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <h3 className="text-sm sm:text-lg font-extrabold text-[#0b2942]">Storage</h3>
+                  <span className="sm:hidden text-[9px] font-extrabold text-[#00c0f3] bg-sky-50 px-1.5 py-0.5 rounded uppercase">
+                    Popular
+                  </span>
+                </div>
+                <div className="md:hidden">
+                  <div
+                    className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                      serviceType === 'storage_at_place' || serviceType === 'storage_facility'
+                        ? 'bg-[#00c0f3] text-white font-bold'
+                        : 'border border-slate-300'
+                    }`}
+                  >
+                    {(serviceType === 'storage_at_place' || serviceType === 'storage_facility') && '✓'}
+                  </div>
+                </div>
+              </div>
+              <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 sm:mt-2 leading-tight sm:leading-relaxed">
+                Keep it at your place, or we collect and store it securely.
+              </p>
+            </div>
           </div>
 
           <button
             type="button"
-            className={`w-full mt-5 py-2.5 rounded-xl font-bold text-xs tracking-wide transition-all cursor-pointer ${
+            className={`hidden md:block w-full mt-5 py-2.5 rounded-xl font-black text-xs tracking-wide transition-all cursor-pointer ${
               serviceType === 'storage_at_place' || serviceType === 'storage_facility'
-                ? 'bg-[#0b2942] text-white shadow-xs'
+                ? 'bg-[#ffd000] text-[#0f3353] border border-amber-300 shadow-xs'
                 : 'border border-slate-300 text-slate-700 group-hover:bg-slate-50'
             }`}
           >
@@ -310,14 +344,14 @@ export const Step2What: React.FC<Step2WhatProps> = ({
             onSelectServiceType('moving_storage');
             setValidationError(null);
           }}
-          className={`group rounded-2xl border-2 transition-all p-4 flex flex-col justify-between cursor-pointer ${
+          className={`group rounded-xl sm:rounded-2xl border-2 transition-all p-2.5 sm:p-4 flex flex-row md:flex-col items-center md:items-stretch justify-between gap-3 cursor-pointer ${
             serviceType === 'moving_storage'
-              ? 'border-[#00c0f3] bg-sky-50/20 shadow-md ring-2 ring-[#00c0f3]/20'
+              ? 'border-[#00c0f3] bg-sky-50/20 shadow-xs sm:shadow-md ring-2 ring-[#00c0f3]/20'
               : 'border-slate-200 hover:border-slate-300 bg-white hover:shadow-xs'
           }`}
         >
-          <div>
-            <div className="aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 mb-4 relative">
+          <div className="flex flex-row md:flex-col items-center md:items-start gap-3 w-full">
+            <div className="w-14 h-14 sm:w-full sm:aspect-[4/3] rounded-lg sm:rounded-xl overflow-hidden bg-slate-100 shrink-0 relative">
               <img
                 src={PORTABOX_IMAGES.movingAndStorage}
                 alt="Portabox container on residential driveway"
@@ -325,17 +359,30 @@ export const Step2What: React.FC<Step2WhatProps> = ({
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
             </div>
-            <h3 className="text-lg font-extrabold text-[#0b2942]">Moving and storage</h3>
-            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-              Pack now, store with us, then we deliver it to your new place.
-            </p>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm sm:text-lg font-extrabold text-[#0b2942]">Moving and storage</h3>
+                <div className="md:hidden">
+                  <div
+                    className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                      serviceType === 'moving_storage' ? 'bg-[#00c0f3] text-white font-bold' : 'border border-slate-300'
+                    }`}
+                  >
+                    {serviceType === 'moving_storage' && '✓'}
+                  </div>
+                </div>
+              </div>
+              <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 sm:mt-2 leading-tight sm:leading-relaxed">
+                Pack now, store with us, then deliver to new place.
+              </p>
+            </div>
           </div>
 
           <button
             type="button"
-            className={`w-full mt-5 py-2.5 rounded-xl font-bold text-xs tracking-wide transition-all cursor-pointer ${
+            className={`hidden md:block w-full mt-5 py-2.5 rounded-xl font-black text-xs tracking-wide transition-all cursor-pointer ${
               serviceType === 'moving_storage'
-                ? 'bg-[#0b2942] text-white shadow-xs'
+                ? 'bg-[#ffd000] text-[#0f3353] border border-amber-300 shadow-xs'
                 : 'border border-slate-300 text-slate-700 group-hover:bg-slate-50'
             }`}
           >
@@ -346,9 +393,9 @@ export const Step2What: React.FC<Step2WhatProps> = ({
 
       {/* Sub-question: If Storage is selected, where will it live? */}
       {(serviceType === 'storage_at_place' || serviceType === 'storage_facility') && (
-        <div className="mt-8 p-5 bg-slate-50 rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-200">
+        <div className="mt-3 sm:mt-8 p-3 sm:p-5 bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 animate-in fade-in duration-200">
           <div>
-            <h4 className="text-sm font-extrabold text-[#0b2942]">Where will the container live?</h4>
+            <h4 className="text-xs sm:text-sm font-extrabold text-[#0b2942]">Where will the container live?</h4>
           </div>
 
           <div className="inline-flex p-1 bg-white border border-slate-200 rounded-xl shadow-xs self-start sm:self-auto">
@@ -357,7 +404,7 @@ export const Step2What: React.FC<Step2WhatProps> = ({
                 onSelectStoragePlacement('my_place');
                 onSelectServiceType('storage_at_place');
               }}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 storagePlacement === 'my_place'
                   ? 'bg-[#0b2942] text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -370,7 +417,7 @@ export const Step2What: React.FC<Step2WhatProps> = ({
                 onSelectStoragePlacement('facility');
                 onSelectServiceType('storage_facility');
               }}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 storagePlacement === 'facility'
                   ? 'bg-[#0b2942] text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -384,13 +431,13 @@ export const Step2What: React.FC<Step2WhatProps> = ({
 
       {/* Destination Postcode Search Section (for Moving & Moving+Storage) */}
       {isMoving && (
-        <div className="mt-8 p-6 bg-sky-50/60 rounded-3xl border border-sky-200 relative animate-in fade-in duration-200">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-1.5 rounded-lg bg-[#00c0f3] text-white">
-              <Truck className="h-4 w-4" />
+        <div className="mt-3.5 sm:mt-8 p-3.5 sm:p-6 bg-sky-50/60 rounded-2xl sm:rounded-3xl border border-sky-200 relative animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+            <div className="p-1 sm:p-1.5 rounded-lg bg-[#00c0f3] text-white">
+              <Truck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-[#0b2942]">
+              <h3 className="text-sm sm:text-base font-extrabold text-[#0b2942]">
                 Where are you moving to?
               </h3>
             </div>
@@ -398,8 +445,8 @@ export const Step2What: React.FC<Step2WhatProps> = ({
 
           {/* Blocked Postcode Alert */}
           {destBlockedNotice && (
-            <div className="mt-3 mb-4 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-3">
-              <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="mt-2.5 mb-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-2.5 sm:gap-3">
+              <ShieldAlert className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 shrink-0 mt-0.5" />
               <div className="text-xs">
                 <p className="font-bold">Destination {destBlockedNotice.postcode} is restricted</p>
                 <p className="mt-0.5 text-amber-800">{destBlockedNotice.reason}</p>
@@ -410,20 +457,20 @@ export const Step2What: React.FC<Step2WhatProps> = ({
 
           {/* Validation Error if user clicks continue without selecting */}
           {validationError && (
-            <div className="mt-2 mb-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
+            <div className="mt-2 mb-2.5 p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
               {validationError}
             </div>
           )}
 
           {/* Autocomplete Input Container */}
-          <div className="mt-4 relative" ref={destDropdownRef}>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+          <div className="mt-2.5 sm:mt-4 relative" ref={destDropdownRef}>
+            <label className="block text-[11px] sm:text-xs font-bold text-slate-700 mb-1">
               Destination suburb or postcode
             </label>
 
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                <MapPin className="h-5 w-5 text-[#00c0f3]" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-[#00c0f3]" />
               </div>
               <input
                 type="text"
@@ -435,14 +482,14 @@ export const Step2What: React.FC<Step2WhatProps> = ({
                   setValidationError(null);
                 }}
                 onFocus={() => setIsDestOpen(true)}
-                placeholder="Search destination e.g. 3000 Melbourne, 2000 Sydney, 4000 Brisbane..."
-                className="w-full pl-11 pr-10 py-3.5 rounded-2xl bg-white border-2 border-[#00c0f3] text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-[#00c0f3]/20 shadow-xs"
+                placeholder="Search destination e.g. 3000 Melbourne, 2000 Sydney..."
+                className="w-full pl-9 pr-9 sm:pl-11 sm:pr-10 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white border-2 border-[#00c0f3] text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-[#00c0f3]/20 shadow-xs"
               />
               {destQuery && (
                 <button
                   type="button"
                   onClick={handleClearDestination}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -451,8 +498,8 @@ export const Step2What: React.FC<Step2WhatProps> = ({
 
             {/* Suggestions Dropdown (Identical to Step 1 Where) */}
             {isDestOpen && destSuggestions.length > 0 && (
-              <div className="absolute z-30 mt-2 w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden divide-y divide-slate-100 max-h-64 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-150">
-                <div className="px-4 py-2 bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              <div className="absolute z-30 mt-1.5 sm:mt-2 w-full bg-white rounded-xl sm:rounded-2xl shadow-xl border border-slate-200 overflow-hidden divide-y divide-slate-100 max-h-64 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-slate-50 text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Suggested Destination Locations
                 </div>
                 {destSuggestions.map((p) => {
@@ -462,17 +509,17 @@ export const Step2What: React.FC<Step2WhatProps> = ({
                       key={`dest-${p.postcode}-${p.suburb}`}
                       type="button"
                       onClick={() => handleSelectDestination(p)}
-                      className={`w-full px-4 py-3 text-left flex items-center justify-between hover:bg-sky-50 transition-colors cursor-pointer ${
+                      className={`w-full px-3.5 py-2.5 sm:px-4 sm:py-3 text-left flex items-center justify-between hover:bg-sky-50 transition-colors cursor-pointer ${
                         isSelected ? 'bg-sky-50 font-bold' : ''
                       }`}
                     >
-                      <div className="flex items-center gap-2.5">
-                        <MapPin className="w-4 h-4 text-[#00c0f3]" />
-                        <span className="text-sm font-semibold text-slate-900">
+                      <div className="flex items-center gap-2 sm:gap-2.5">
+                        <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00c0f3]" />
+                        <span className="text-xs sm:text-sm font-semibold text-slate-900">
                           <span className="font-bold text-[#0b2942]">{p.postcode}</span> {p.suburb}
                         </span>
                       </div>
-                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                      <span className="text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
                         {p.state}
                       </span>
                     </button>
@@ -484,16 +531,16 @@ export const Step2What: React.FC<Step2WhatProps> = ({
 
           {/* Clean Destination Confirmation */}
           {destinationPostcode && !destBlockedNotice && (
-            <div className="mt-4 p-4 rounded-2xl bg-white border border-sky-200 flex items-center justify-between gap-3 shadow-2xs">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-[#00c0f3] text-white flex items-center justify-center font-bold">
+            <div className="mt-2.5 sm:mt-4 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-sky-200 flex items-center justify-between gap-2.5 sm:gap-3 shadow-2xs">
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-[#00c0f3] text-white flex items-center justify-center font-bold text-xs">
                   ✓
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-[#0b2942]">
+                  <p className="text-xs sm:text-sm font-bold text-[#0b2942]">
                     Moving to {destinationPostcode.suburb}, {destinationPostcode.state} {destinationPostcode.postcode}
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-[10px] sm:text-xs text-slate-500">
                     Destination confirmed
                   </p>
                 </div>
@@ -501,7 +548,7 @@ export const Step2What: React.FC<Step2WhatProps> = ({
               <button
                 type="button"
                 onClick={handleClearDestination}
-                className="text-xs text-slate-500 hover:text-[#0b2942] font-bold px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
+                className="text-xs text-slate-500 hover:text-[#0b2942] font-bold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 Change
               </button>
@@ -511,26 +558,26 @@ export const Step2What: React.FC<Step2WhatProps> = ({
       )}
 
       {/* Are You Stuck Banner */}
-      <div className="mt-8">
+      <div className="mt-4 sm:mt-8">
         <AreYouStuckBanner />
       </div>
 
       {/* Navigation Buttons */}
-      <div className="mt-10 flex items-center justify-between pt-6 border-t border-slate-100">
+      <div className="mt-4 sm:mt-10 flex items-center justify-between pt-3 sm:pt-6 border-t border-slate-100">
         <button
           onClick={onBack}
-          className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 cursor-pointer py-2 px-3 rounded-lg hover:bg-slate-100 transition-colors"
+          className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 cursor-pointer py-1.5 px-2.5 rounded-lg hover:bg-slate-100 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           <span>Previous</span>
         </button>
 
         <button
           onClick={handleContinueClick}
-          className="px-8 py-3.5 bg-[#0b2942] hover:bg-[#081e30] text-white font-bold rounded-2xl flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-98"
+          className="px-7 sm:px-9 py-2.5 sm:py-3.5 bg-[#ffd000] hover:bg-[#ffdc26] active:bg-[#eab308] text-[#0f3353] font-black rounded-xl sm:rounded-2xl flex items-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg active:scale-98 text-sm sm:text-base border-2 border-amber-300 shrink-0"
         >
           <span>Continue</span>
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="w-4 h-4 stroke-[3]" />
         </button>
       </div>
     </div>

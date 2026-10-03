@@ -38,7 +38,7 @@ export interface ContainerAsset {
 export interface TruckFleetAsset {
   truckId: string;
   truckModel: string;
-  truckType: 'Crane Lift Heavy' | 'Slide-On Standard' | 'Dual Container Haulage';
+  truckType: 'Crane Lift Heavy' | 'Slide-On Standard' | 'Dual Container Haulage' | 'Level-Lift Heavy System';
   rego: string;
   driverName: string;
   driverPhone: string;

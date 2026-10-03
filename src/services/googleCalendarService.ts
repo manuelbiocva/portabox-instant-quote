@@ -11,13 +11,11 @@ import firebaseConfig from '../../firebase-applet-config.json';
 import { DeliverySlotWindow, DepotCalendarConfig, MetroHub } from '../types/quote';
 
 // 1. Initialize Firebase App (safe reuse)
-//
-// The Google Calendar slots are optional — firebase-applet-config.json ships
-// blank and the app is meant to fall back to the static delivery windows. It
-// does not: initializeApp throws auth/invalid-api-key on an empty key, and
-// because this runs at module scope the throw lands before React mounts and
-// takes the whole page down with it. Firebase is only touched when a real
-// config is present, and everything below treats a null auth as "signed out".
+// Firebase is only touched when a real config is present. initializeApp
+// throws auth/invalid-api-key on an empty key, and because this runs at
+// module scope the throw lands before React mounts — a blank page. The
+// three call sites below treat a null auth as "signed out", which is what
+// sends DeliverySlotPicker to the static windows.
 const hasFirebaseConfig = Boolean(firebaseConfig?.apiKey && firebaseConfig?.projectId);
 const app = hasFirebaseConfig
   ? (getApps().length === 0 ? initializeApp(firebaseConfig) : getApp())
@@ -114,8 +112,6 @@ export const initCalendarAuth = (
   onAuthSuccess?: (user: User, token: string) => void,
   onAuthFailure?: () => void
 ) => {
-  // No Firebase project configured: report signed-out once and do nothing
-  // more, which is what sends DeliverySlotPicker to the static windows.
   if (!auth) {
     if (onAuthFailure) onAuthFailure();
     return () => {};

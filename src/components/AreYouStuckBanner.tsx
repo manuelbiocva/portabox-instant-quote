@@ -12,7 +12,7 @@ export const AreYouStuckBanner: React.FC<AreYouStuckBannerProps> = ({
 }) => {
   return (
     <div
-      className={`rounded-2xl border border-sky-200/90 bg-sky-50/80 p-4 sm:p-4.5 transition-all shadow-2xs ${className}`}
+      className={`hidden sm:block rounded-2xl border border-sky-200/90 bg-sky-50/80 p-4 sm:p-4.5 transition-all shadow-2xs ${className}`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-start sm:items-center gap-3">

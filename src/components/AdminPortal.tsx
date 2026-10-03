@@ -131,6 +131,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     sanitizationWash: true,
     floorDrings: true,
     lockboxShroud: true,
+    horizontalLiftSafetyLocks: true,
     tiltTraySafetyChains: true,
     inspectedBy: 'Dave Higgins (Yard Supervisor)',
     inspectedAt: new Date().toLocaleDateString('en-AU') + ' 08:30 AM',
@@ -403,6 +404,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         sanitizationWash: true,
         floorDrings: true,
         lockboxShroud: true,
+        horizontalLiftSafetyLocks: true,
         tiltTraySafetyChains: true,
         inspectedBy: 'Dave Higgins (Yard Supervisor)',
         inspectedAt: new Date().toLocaleDateString('en-AU') + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -415,14 +417,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
   const handleSaveInspection = () => {
     if (!inspectionTargetOrder) return;
-    const passed =
+    const passed = Boolean(
       checklistState.weatherproofSeal &&
       checklistState.sanitizationWash &&
       checklistState.floorDrings &&
       checklistState.lockboxShroud &&
-      checklistState.tiltTraySafetyChains;
+      checklistState.horizontalLiftSafetyLocks &&
+      checklistState.tiltTraySafetyChains
+    );
 
-    const updatedChecklist = { ...checklistState, passed };
+    const updatedChecklist: YardInspectionChecklist = {
+      ...checklistState,
+      passed,
+    };
     const updated = submitYardInspectionChecklist(inspectionTargetOrder.orderNumber, updatedChecklist);
     setSmartsheetRows(updated);
     setSmartsheetConfig(loadSmartsheetConfig());

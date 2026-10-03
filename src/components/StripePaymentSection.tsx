@@ -476,11 +476,11 @@ export const StripePaymentSection: React.FC<StripePaymentSectionProps> = ({
           <button
             type="submit"
             disabled={isProcessing}
-            className="w-full py-4 rounded-2xl bg-[#00c0f3] hover:bg-[#00abda] active:bg-[#0096c0] text-white font-black text-base shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed group"
+            className="w-full py-4 rounded-2xl bg-[#ffd000] hover:bg-[#ffdc26] active:bg-[#eab308] text-[#0f3353] font-black text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed group border-2 border-amber-300"
           >
             {isProcessing ? (
               <>
-                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                <svg className="animate-spin h-5 w-5 text-[#0f3353]" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>

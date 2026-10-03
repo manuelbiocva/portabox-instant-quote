@@ -162,21 +162,22 @@ export const Step4When: React.FC<Step4WhenProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 lg:p-10 shadow-xs border border-slate-200/80">
+    <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-8 lg:p-10 shadow-xs border border-slate-200/80">
       {/* Header kicker */}
-      <span className="text-xs font-extrabold uppercase tracking-widest text-[#00c0f3] font-['Cabinet_Grotesk',sans-serif]">
-        INSTANT QUOTE
+      <span className="text-[11px] sm:text-xs font-extrabold uppercase tracking-widest text-[#00c0f3] font-['Cabinet_Grotesk',sans-serif] flex items-center gap-1.5">
+        <span>—</span>
+        <span>INSTANT QUOTE</span>
       </span>
 
-      <h1 className="text-2xl sm:text-4xl font-extrabold text-[#0b2942] tracking-tight mt-1 mb-6">
+      <h1 className="text-xl sm:text-4xl font-extrabold text-[#0b2942] tracking-tight mt-0.5 sm:mt-1 mb-3 sm:mb-6 leading-tight">
         How long, and when?
       </h1>
 
       {/* Section 1: Estimated storage duration (select weeks or months) */}
-      <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+      <div className="mb-4 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 mb-2 sm:mb-3">
           <div>
-            <label className="block text-sm font-extrabold text-[#0b2942]">
+            <label className="block text-xs sm:text-sm font-extrabold text-[#0b2942]">
               Estimated storage duration
             </label>
           </div>
@@ -189,7 +190,7 @@ export const Step4When: React.FC<Step4WhenProps> = ({
                 setDurationUnit('months');
                 handleSelectMonths(customDurationVal || 3);
               }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 durationUnit === 'months'
                   ? 'bg-[#0b2942] text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -203,7 +204,7 @@ export const Step4When: React.FC<Step4WhenProps> = ({
                 setDurationUnit('weeks');
                 handleSelectWeeks(customDurationVal || 4);
               }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 durationUnit === 'weeks'
                   ? 'bg-[#0b2942] text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -216,8 +217,8 @@ export const Step4When: React.FC<Step4WhenProps> = ({
 
         {/* Buttons for Months */}
         {durationUnit === 'months' && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 sm:grid-cols-6 gap-2.5">
+          <div className="space-y-2 sm:space-y-3">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 sm:gap-2.5">
               {[
                 { months: 1, label: '1 Month' },
                 { months: 2, label: '2 Months' },
@@ -232,7 +233,7 @@ export const Step4When: React.FC<Step4WhenProps> = ({
                     key={opt.months}
                     type="button"
                     onClick={() => handleSelectMonths(opt.months)}
-                    className={`p-3 rounded-2xl border text-center transition-all cursor-pointer font-bold text-xs sm:text-sm ${
+                    className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl border text-center transition-all cursor-pointer font-bold text-xs sm:text-sm ${
                       isSelected
                         ? 'border-[#00c0f3] bg-sky-50 text-[#0b2942] ring-2 ring-[#00c0f3]/20 shadow-xs'
                         : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
@@ -240,7 +241,7 @@ export const Step4When: React.FC<Step4WhenProps> = ({
                   >
                     <div>{opt.label}</div>
                     {opt.months >= 12 && (
-                      <span className="inline-block mt-0.5 bg-[#00c0f3] text-white font-extrabold text-[8px] tracking-wider uppercase px-1.5 py-0.2 rounded-sm">
+                      <span className="inline-block mt-0.5 bg-[#00c0f3] text-white font-extrabold text-[7.5px] sm:text-[8px] tracking-wider uppercase px-1 sm:px-1.5 py-0.2 rounded-sm">
                         Best value
                       </span>
                     )}
@@ -250,23 +251,23 @@ export const Step4When: React.FC<Step4WhenProps> = ({
             </div>
 
             {/* Custom Months Stepper */}
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
-              <span className="font-semibold text-slate-600">Custom duration:</span>
+            <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-200 text-xs">
+              <span className="font-semibold text-slate-600 text-[11px] sm:text-xs">Custom duration:</span>
               <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-300 shadow-2xs">
                 <button
                   type="button"
                   onClick={() => handleSelectMonths(Math.max(1, customDurationVal - 1))}
-                  className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm cursor-pointer"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs sm:text-sm cursor-pointer"
                 >
                   -
                 </button>
-                <span className="w-20 text-center font-bold text-[#0b2942]">
+                <span className="w-16 sm:w-20 text-center font-bold text-[#0b2942] text-[11px] sm:text-xs">
                   {customDurationVal} {customDurationVal === 1 ? 'Month' : 'Months'}
                 </span>
                 <button
                   type="button"
                   onClick={() => handleSelectMonths(Math.min(36, customDurationVal + 1))}
-                  className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm cursor-pointer"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs sm:text-sm cursor-pointer"
                 >
                   +
                 </button>
@@ -277,8 +278,8 @@ export const Step4When: React.FC<Step4WhenProps> = ({
 
         {/* Buttons for Weeks */}
         {durationUnit === 'weeks' && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 sm:grid-cols-6 gap-2.5">
+          <div className="space-y-2 sm:space-y-3">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 sm:gap-2.5">
               {[
                 { weeks: 1, label: '1 Week' },
                 { weeks: 2, label: '2 Weeks' },
@@ -293,7 +294,7 @@ export const Step4When: React.FC<Step4WhenProps> = ({
                     key={opt.weeks}
                     type="button"
                     onClick={() => handleSelectWeeks(opt.weeks)}
-                    className={`p-3 rounded-2xl border text-center transition-all cursor-pointer font-bold text-xs sm:text-sm ${
+                    className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl border text-center transition-all cursor-pointer font-bold text-xs sm:text-sm ${
                       isSelected
                         ? 'border-[#00c0f3] bg-sky-50 text-[#0b2942] ring-2 ring-[#00c0f3]/20 shadow-xs'
                         : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
@@ -306,23 +307,23 @@ export const Step4When: React.FC<Step4WhenProps> = ({
             </div>
 
             {/* Custom Weeks Stepper */}
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
-              <span className="font-semibold text-slate-600">Custom duration:</span>
+            <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-200 text-xs">
+              <span className="font-semibold text-slate-600 text-[11px] sm:text-xs">Custom duration:</span>
               <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-300 shadow-2xs">
                 <button
                   type="button"
                   onClick={() => handleSelectWeeks(Math.max(1, customDurationVal - 1))}
-                  className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm cursor-pointer"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs sm:text-sm cursor-pointer"
                 >
                   -
                 </button>
-                <span className="w-20 text-center font-bold text-[#0b2942]">
+                <span className="w-16 sm:w-20 text-center font-bold text-[#0b2942] text-[11px] sm:text-xs">
                   {customDurationVal} {customDurationVal === 1 ? 'Week' : 'Weeks'}
                 </span>
                 <button
                   type="button"
                   onClick={() => handleSelectWeeks(Math.min(104, customDurationVal + 1))}
-                  className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm cursor-pointer"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs sm:text-sm cursor-pointer"
                 >
                   +
                 </button>
@@ -333,44 +334,44 @@ export const Step4When: React.FC<Step4WhenProps> = ({
       </div>
 
       {/* Section 2: Billing Type Selection */}
-      <div className="mb-8 p-5 rounded-3xl border border-sky-100 bg-sky-50/40">
-        <div className="pb-3 mb-4 border-b border-sky-100">
-          <label className="text-base font-extrabold text-[#0b2942] block">
+      <div className="mb-4 sm:mb-8 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-sky-100 bg-sky-50/40">
+        <div className="pb-2.5 sm:pb-3 mb-2.5 sm:mb-4 border-b border-sky-100">
+          <label className="text-sm sm:text-base font-extrabold text-[#0b2942] block">
             Choose type of billing
           </label>
-          <p className="text-xs text-slate-500">
+          <p className="text-[11px] sm:text-xs text-slate-500">
             Select your payment frequency and maximize your savings
           </p>
         </div>
 
         {/* 5 Billing Buttons */}
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {/* 1. Weekly */}
           <button
             type="button"
             onClick={() => onSelectBillingCycle('weekly')}
-            className={`w-full p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+            className={`w-full p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3 ${
               billingCycle === 'weekly'
-                ? 'border-[#00c0f3] bg-white ring-2 ring-[#00c0f3]/30 shadow-sm'
+                ? 'border-[#00c0f3] bg-white ring-2 ring-[#00c0f3]/30 shadow-xs sm:shadow-sm'
                 : 'border-slate-200 bg-white/70 hover:bg-white'
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                   billingCycle === 'weekly' ? 'border-[#00c0f3] bg-[#00c0f3]' : 'border-slate-300 bg-white'
                 }`}
               >
-                {billingCycle === 'weekly' && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                {billingCycle === 'weekly' && <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white stroke-[3]" />}
               </div>
-              <div className="text-sm font-extrabold text-[#0b2942]">Weekly</div>
+              <div className="text-xs sm:text-sm font-extrabold text-[#0b2942]">Weekly</div>
             </div>
 
-            <div className="flex flex-row sm:flex-col items-baseline sm:items-end justify-between sm:justify-center gap-1 pl-8 sm:pl-0">
-              <div className="text-base font-extrabold text-[#0b2942] font-mono">
-                ${weeklyRate}<span className="text-xs font-normal text-slate-500">/wk</span>
+            <div className="flex flex-row sm:flex-col items-baseline sm:items-end justify-between sm:justify-center gap-1 pl-6 sm:pl-0">
+              <div className="text-sm sm:text-base font-extrabold text-[#0b2942] font-mono">
+                ${weeklyRate}<span className="text-[11px] sm:text-xs font-normal text-slate-500">/wk</span>
               </div>
-              <span className="text-[11px] font-bold text-slate-400">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-400">
                 Standard weekly base rate
               </span>
             </div>
@@ -380,34 +381,34 @@ export const Step4When: React.FC<Step4WhenProps> = ({
           <button
             type="button"
             onClick={() => onSelectBillingCycle('monthly')}
-            className={`w-full p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+            className={`w-full p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3 ${
               billingCycle === 'monthly'
-                ? 'border-[#00c0f3] bg-white ring-2 ring-[#00c0f3]/30 shadow-sm'
+                ? 'border-[#00c0f3] bg-white ring-2 ring-[#00c0f3]/30 shadow-xs sm:shadow-sm'
                 : 'border-slate-200 bg-white/70 hover:bg-white'
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                   billingCycle === 'monthly' ? 'border-[#00c0f3] bg-[#00c0f3]' : 'border-slate-300 bg-white'
                 }`}
               >
-                {billingCycle === 'monthly' && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                {billingCycle === 'monthly' && <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white stroke-[3]" />}
               </div>
-              <div className="text-sm font-extrabold text-[#0b2942] flex items-center gap-2">
+              <div className="text-xs sm:text-sm font-extrabold text-[#0b2942] flex items-center gap-1.5 sm:gap-2">
                 <span>Monthly</span>
-                <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                <span className="text-[9px] sm:text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-200">
                   POPULAR
                 </span>
               </div>
             </div>
 
-            <div className="flex flex-row sm:flex-col items-baseline sm:items-end justify-between sm:justify-center gap-1 pl-8 sm:pl-0">
-              <div className="text-base font-extrabold text-[#0b2942] font-mono">
-                ${monthlyRate}<span className="text-xs font-normal text-slate-500">/mo</span>{' '}
-                <span className="text-xs text-slate-400 font-normal">(~${Math.round(monthlyRate / 4.333)}/wk)</span>
+            <div className="flex flex-row sm:flex-col items-baseline sm:items-end justify-between sm:justify-center gap-1 pl-6 sm:pl-0">
+              <div className="text-sm sm:text-base font-extrabold text-[#0b2942] font-mono">
+                ${monthlyRate}<span className="text-[11px] sm:text-xs font-normal text-slate-500">/mo</span>{' '}
+                <span className="text-[10px] sm:text-xs text-slate-400 font-normal">(~${Math.round(monthlyRate / 4.333)}/wk)</span>
               </div>
-              <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50/80 px-2 py-0.5 rounded-md border border-emerald-200/60">
+              <span className="text-[10px] sm:text-[11px] font-bold text-emerald-600 bg-emerald-50/80 px-1.5 py-0.2 rounded-md border border-emerald-200/60">
                 Save ${monthlySavings}/mo vs weekly ({monthlySavingsPercent}% savings)
               </span>
             </div>
@@ -417,30 +418,30 @@ export const Step4When: React.FC<Step4WhenProps> = ({
           <button
             type="button"
             onClick={() => onSelectBillingCycle('3_months_upfront')}
-            className={`w-full p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+            className={`w-full p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3 ${
               billingCycle === '3_months_upfront'
-                ? 'border-[#00c0f3] bg-white ring-2 ring-[#00c0f3]/30 shadow-sm'
+                ? 'border-[#00c0f3] bg-white ring-2 ring-[#00c0f3]/30 shadow-xs sm:shadow-sm'
                 : 'border-slate-200 bg-white/70 hover:bg-white'
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                   billingCycle === '3_months_upfront' ? 'border-[#00c0f3] bg-[#00c0f3]' : 'border-slate-300 bg-white'
                 }`}
               >
-                {billingCycle === '3_months_upfront' && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                {billingCycle === '3_months_upfront' && <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white stroke-[3]" />}
               </div>
-              <div className="text-sm font-extrabold text-[#0b2942]">
+              <div className="text-xs sm:text-sm font-extrabold text-[#0b2942]">
                 3 months upfront then monthly
               </div>
             </div>
 
-            <div className="flex flex-row sm:flex-col items-baseline sm:items-end justify-between sm:justify-center gap-1 pl-8 sm:pl-0">
-              <div className="text-base font-extrabold text-[#0b2942] font-mono">
-                ${Math.round(threeMonthsUpfrontTotal / 3)}<span className="text-xs font-normal text-slate-500">/mo equiv</span>
+            <div className="flex flex-row sm:flex-col items-baseline sm:items-end justify-between sm:justify-center gap-1 pl-6 sm:pl-0">
+              <div className="text-sm sm:text-base font-extrabold text-[#0b2942] font-mono">
+                ${Math.round(threeMonthsUpfrontTotal / 3)}<span className="text-[11px] sm:text-xs font-normal text-slate-500">/mo equiv</span>
               </div>
-              <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50/80 px-2 py-0.5 rounded-md border border-emerald-200/60">
+              <span className="text-[10px] sm:text-[11px] font-bold text-emerald-600 bg-emerald-50/80 px-1.5 py-0.2 rounded-md border border-emerald-200/60">
                 Save ${threeMonthsSavings} vs weekly over 3 months ({threeMonthsSavingsPercent}% savings)
               </span>
             </div>
@@ -450,30 +451,30 @@ export const Step4When: React.FC<Step4WhenProps> = ({
           <button
             type="button"
             onClick={() => onSelectBillingCycle('6_months_upfront')}
-            className={`w-full p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+            className={`w-full p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3 ${
               billingCycle === '6_months_upfront'
-                ? 'border-[#00c0f3] bg-white ring-2 ring-[#00c0f3]/30 shadow-sm'
+                ? 'border-[#00c0f3] bg-white ring-2 ring-[#00c0f3]/30 shadow-xs sm:shadow-sm'
                 : 'border-slate-200 bg-white/70 hover:bg-white'
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                   billingCycle === '6_months_upfront' ? 'border-[#00c0f3] bg-[#00c0f3]' : 'border-slate-300 bg-white'
                 }`}
               >
-                {billingCycle === '6_months_upfront' && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                {billingCycle === '6_months_upfront' && <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white stroke-[3]" />}
               </div>
-              <div className="text-sm font-extrabold text-[#0b2942]">
+              <div className="text-xs sm:text-sm font-extrabold text-[#0b2942]">
                 6 months upfront then monthly
               </div>
             </div>
 
-            <div className="flex flex-row sm:flex-col items-baseline sm:items-end justify-between sm:justify-center gap-1 pl-8 sm:pl-0">
-              <div className="text-base font-extrabold text-[#0b2942] font-mono">
-                ${Math.round(sixMonthsUpfrontTotal / 6)}<span className="text-xs font-normal text-slate-500">/mo equiv</span>
+            <div className="flex flex-row sm:flex-col items-baseline sm:items-end justify-between sm:justify-center gap-1 pl-6 sm:pl-0">
+              <div className="text-sm sm:text-base font-extrabold text-[#0b2942] font-mono">
+                ${Math.round(sixMonthsUpfrontTotal / 6)}<span className="text-[11px] sm:text-xs font-normal text-slate-500">/mo equiv</span>
               </div>
-              <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50/80 px-2 py-0.5 rounded-md border border-emerald-200/60">
+              <span className="text-[10px] sm:text-[11px] font-bold text-emerald-600 bg-emerald-50/80 px-1.5 py-0.2 rounded-md border border-emerald-200/60">
                 Save ${sixMonthsSavings} vs weekly over 6 months ({sixMonthsSavingsPercent}% savings)
               </span>
             </div>
@@ -483,33 +484,33 @@ export const Step4When: React.FC<Step4WhenProps> = ({
           <button
             type="button"
             onClick={() => onSelectBillingCycle('12_months_upfront')}
-            className={`w-full p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+            className={`w-full p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3 ${
               billingCycle === '12_months_upfront'
-                ? 'border-[#00c0f3] bg-white ring-2 ring-[#00c0f3]/30 shadow-sm'
+                ? 'border-[#00c0f3] bg-white ring-2 ring-[#00c0f3]/30 shadow-xs sm:shadow-sm'
                 : 'border-slate-200 bg-white/70 hover:bg-white'
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                   billingCycle === '12_months_upfront' ? 'border-[#00c0f3] bg-[#00c0f3]' : 'border-slate-300 bg-white'
                 }`}
               >
-                {billingCycle === '12_months_upfront' && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                {billingCycle === '12_months_upfront' && <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white stroke-[3]" />}
               </div>
-              <div className="text-sm font-extrabold text-[#0b2942] flex items-center gap-2">
-                <span>12 months upfront then monthly</span>
-                <span className="text-[10px] font-extrabold text-white bg-[#00c0f3] px-2 py-0.5 rounded-full">
+              <div className="text-xs sm:text-sm font-extrabold text-[#0b2942] flex items-center gap-1.5 sm:gap-2">
+                <span>12 months upfront</span>
+                <span className="text-[9px] sm:text-[10px] font-extrabold text-white bg-[#00c0f3] px-1.5 py-0.2 rounded-full">
                   MAX SAVINGS
                 </span>
               </div>
             </div>
 
-            <div className="flex flex-row sm:flex-col items-baseline sm:items-end justify-between sm:justify-center gap-1 pl-8 sm:pl-0">
-              <div className="text-base font-extrabold text-[#0b2942] font-mono">
-                ${Math.round(twelveMonthsUpfrontTotal / 12)}<span className="text-xs font-normal text-slate-500">/mo equiv</span>
+            <div className="flex flex-row sm:flex-col items-baseline sm:items-end justify-between sm:justify-center gap-1 pl-6 sm:pl-0">
+              <div className="text-sm sm:text-base font-extrabold text-[#0b2942] font-mono">
+                ${Math.round(twelveMonthsUpfrontTotal / 12)}<span className="text-[11px] sm:text-xs font-normal text-slate-500">/mo equiv</span>
               </div>
-              <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50/80 px-2 py-0.5 rounded-md border border-emerald-200/60">
+              <span className="text-[10px] sm:text-[11px] font-bold text-emerald-600 bg-emerald-50/80 px-1.5 py-0.2 rounded-md border border-emerald-200/60">
                 Save ${twelveMonthsSavings} vs weekly over 12 months ({twelveMonthsSavingsPercent}% savings)
               </span>
             </div>
@@ -518,43 +519,43 @@ export const Step4When: React.FC<Step4WhenProps> = ({
       </div>
 
       {/* Section 3: Schedule Your Container Flow */}
-      <div className="mb-8 p-5 sm:p-6 rounded-3xl bg-slate-50/70 border border-slate-200/90 space-y-6">
+      <div className="mb-4 sm:mb-8 p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-50/70 border border-slate-200/90 space-y-3.5 sm:space-y-6">
         <div>
-          <h3 className="text-xl sm:text-2xl font-black text-[#0b2942] tracking-tight">
+          <h3 className="text-base sm:text-2xl font-black text-[#0b2942] tracking-tight">
             Schedule your container
           </h3>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1">
             Easy and simple booking in two quick steps:
           </p>
         </div>
 
         {/* Step 1: Pick a date */}
-        <div className="space-y-2">
+        <div className="space-y-1.5 sm:space-y-2">
           <label className="block text-xs sm:text-sm font-black text-[#0b2942] uppercase tracking-wider flex items-center gap-2">
-            <span className="w-5 h-5 rounded-full bg-[#00c0f3] text-white text-xs flex items-center justify-center font-bold">1</span>
+            <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#00c0f3] text-white text-[10px] sm:text-xs flex items-center justify-center font-bold">1</span>
             <span>Pick a date</span>
           </label>
 
           <div className="max-w-xs">
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#00c0f3]">
-                <Calendar className="w-5 h-5" />
+              <div className="absolute inset-y-0 left-0 pl-3 sm:pl-3.5 flex items-center pointer-events-none text-[#00c0f3]">
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <input
                 type="date"
                 value={dateInputValue}
                 min={formattedDefault}
                 onChange={(e) => handleDateChange(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 rounded-2xl border-2 border-slate-200 focus:border-[#00c0f3] focus:ring-4 focus:ring-[#00c0f3]/20 bg-white text-sm font-bold text-[#0b2942] transition-all shadow-xs"
+                className="w-full pl-9 pr-3 sm:pl-11 sm:pr-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl border-2 border-slate-200 focus:border-[#00c0f3] focus:ring-4 focus:ring-[#00c0f3]/20 bg-white text-xs sm:text-sm font-bold text-[#0b2942] transition-all shadow-xs"
               />
             </div>
           </div>
         </div>
 
         {/* Step 2: Pick a delivery time window */}
-        <div className="space-y-2 pt-2 border-t border-slate-200/70">
+        <div className="space-y-1.5 sm:space-y-2 pt-2 border-t border-slate-200/70">
           <label className="block text-xs sm:text-sm font-black text-[#0b2942] uppercase tracking-wider flex items-center gap-2">
-            <span className="w-5 h-5 rounded-full bg-[#00c0f3] text-white text-xs flex items-center justify-center font-bold">2</span>
+            <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#00c0f3] text-white text-[10px] sm:text-xs flex items-center justify-center font-bold">2</span>
             <span>Pick a delivery time window</span>
           </label>
 
@@ -572,49 +573,49 @@ export const Step4When: React.FC<Step4WhenProps> = ({
       </div>
 
       {/* Section 4: Add Packing Boxes & Blanket Rentals */}
-      <div className="mb-8 pt-6 border-t border-slate-100">
-        <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 sm:mb-8 pt-3 sm:pt-6 border-t border-slate-100">
+        <div className="flex items-center justify-between mb-2.5 sm:mb-4">
           <div>
-            <h3 className="text-base font-extrabold text-[#0b2942] flex items-center gap-2">
-              <Package className="w-5 h-5 text-[#00c0f3]" />
+            <h3 className="text-sm sm:text-base font-extrabold text-[#0b2942] flex items-center gap-2">
+              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-[#00c0f3]" />
               <span>Packing Supplies & Blanket Rentals</span>
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Delivered inside your container ready to pack. Save with bundle pricing!
+            <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">
+              Delivered inside your container ready to pack.
             </p>
           </div>
           {(boxesCount > 0 || blanketsCount > 0) && (
             <div className="text-right">
-              <span className="text-xs font-bold text-slate-400 block">Supplies Total</span>
-              <span className="text-base font-extrabold text-[#00c0f3] font-mono">
+              <span className="text-[10px] sm:text-xs font-bold text-slate-400 block">Supplies Total</span>
+              <span className="text-sm sm:text-base font-extrabold text-[#00c0f3] font-mono">
                 +${currentBoxPrice + currentBlanketPrice}
               </span>
             </div>
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
           {/* Heavy Duty Moving Boxes */}
-          <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition-colors">
             <div className="flex items-start justify-between">
               <div>
-                <h4 className="font-extrabold text-sm text-[#0b2942]">Moving Boxes</h4>
-                <p className="text-[11px] text-slate-500">
+                <h4 className="font-extrabold text-xs sm:text-sm text-[#0b2942]">Moving Boxes</h4>
+                <p className="text-[10px] sm:text-[11px] text-slate-500">
                   Double-walled heavy duty cartons
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-sm font-extrabold text-[#0b2942] font-mono">
+                <span className="text-xs sm:text-sm font-extrabold text-[#0b2942] font-mono">
                   ${currentBoxPrice}
                 </span>
-                <span className="block text-[10px] text-slate-400">
+                <span className="block text-[9px] sm:text-[10px] text-slate-400">
                   {boxesCount} ordered
                 </span>
               </div>
             </div>
 
             {/* Pricing Matrix Banner */}
-            <div className="mt-2.5 p-2 rounded-xl bg-white border border-slate-200/80 text-[11px] text-slate-600 flex items-center justify-between">
+            <div className="mt-2 p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-white border border-slate-200/80 text-[10px] sm:text-[11px] text-slate-600 flex items-center justify-between">
               <span>$2.50 ea</span>
               <span>·</span>
               <span className="font-bold text-[#0b2942]">10 for $20</span>
@@ -625,13 +626,13 @@ export const Step4When: React.FC<Step4WhenProps> = ({
             </div>
 
             {/* Quick Bundle Selector */}
-            <div className="grid grid-cols-4 gap-1.5 mt-3">
+            <div className="grid grid-cols-4 gap-1.5 mt-2 sm:mt-3">
               {[0, 10, 50, 100].map((qty) => (
                 <button
                   key={qty}
                   type="button"
                   onClick={() => onUpdateBoxesCount(qty)}
-                  className={`py-1.5 px-1 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${
+                  className={`py-1 sm:py-1.5 px-1 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold border transition-all cursor-pointer text-center ${
                     boxesCount === qty
                       ? 'bg-[#00c0f3] text-white border-[#00c0f3] shadow-xs'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
@@ -643,13 +644,13 @@ export const Step4When: React.FC<Step4WhenProps> = ({
             </div>
 
             {/* Stepper for custom quantity */}
-            <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-200/60 text-xs">
-              <span className="font-semibold text-slate-600">Custom count:</span>
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between mt-2 sm:mt-3 pt-2 sm:pt-2.5 border-t border-slate-200/60 text-xs">
+              <span className="font-semibold text-slate-600 text-[11px] sm:text-xs">Custom count:</span>
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => onUpdateBoxesCount(Math.max(0, boxesCount - 5))}
-                  className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 cursor-pointer"
                 >
                   <Minus className="w-3 h-3" />
                 </button>
@@ -659,12 +660,12 @@ export const Step4When: React.FC<Step4WhenProps> = ({
                   max="500"
                   value={boxesCount}
                   onChange={(e) => onUpdateBoxesCount(Math.max(0, parseInt(e.target.value) || 0))}
-                  className="w-12 text-center py-1 rounded-lg border border-slate-200 font-mono font-bold text-xs bg-white"
+                  className="w-10 sm:w-12 text-center py-0.5 sm:py-1 rounded-lg border border-slate-200 font-mono font-bold text-xs bg-white"
                 />
                 <button
                   type="button"
                   onClick={() => onUpdateBoxesCount(boxesCount + 5)}
-                  className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 cursor-pointer"
                 >
                   <Plus className="w-3 h-3" />
                 </button>
@@ -673,26 +674,26 @@ export const Step4When: React.FC<Step4WhenProps> = ({
           </div>
 
           {/* Furniture Blankets Rental */}
-          <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition-colors">
             <div className="flex items-start justify-between">
               <div>
-                <h4 className="font-extrabold text-sm text-[#0b2942]">Blanket Rental</h4>
-                <p className="text-[11px] text-slate-500">
+                <h4 className="font-extrabold text-xs sm:text-sm text-[#0b2942]">Blanket Rental</h4>
+                <p className="text-[10px] sm:text-[11px] text-slate-500">
                   Thick quilted furniture padding
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-sm font-extrabold text-[#0b2942] font-mono">
+                <span className="text-xs sm:text-sm font-extrabold text-[#0b2942] font-mono">
                   ${currentBlanketPrice}
                 </span>
-                <span className="block text-[10px] text-slate-400">
+                <span className="block text-[9px] sm:text-[10px] text-slate-400">
                   {blanketsCount} blankets
                 </span>
               </div>
             </div>
 
             {/* Pricing Matrix Banner */}
-            <div className="mt-2.5 p-2 rounded-xl bg-white border border-slate-200/80 text-[11px] text-slate-600 flex items-center justify-between">
+            <div className="mt-2 p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-white border border-slate-200/80 text-[10px] sm:text-[11px] text-slate-600 flex items-center justify-between">
               <span>$2.00 ea</span>
               <span>·</span>
               <span className="font-bold text-[#0b2942]">10 for $20</span>
@@ -703,13 +704,13 @@ export const Step4When: React.FC<Step4WhenProps> = ({
             </div>
 
             {/* Quick Bundle Selector */}
-            <div className="grid grid-cols-4 gap-1.5 mt-3">
+            <div className="grid grid-cols-4 gap-1.5 mt-2 sm:mt-3">
               {[0, 10, 50, 100].map((qty) => (
                 <button
                   key={qty}
                   type="button"
                   onClick={() => onUpdateBlanketsCount(qty)}
-                  className={`py-1.5 px-1 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${
+                  className={`py-1 sm:py-1.5 px-1 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold border transition-all cursor-pointer text-center ${
                     blanketsCount === qty
                       ? 'bg-[#00c0f3] text-white border-[#00c0f3] shadow-xs'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
@@ -721,13 +722,13 @@ export const Step4When: React.FC<Step4WhenProps> = ({
             </div>
 
             {/* Stepper for custom quantity */}
-            <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-200/60 text-xs">
-              <span className="font-semibold text-slate-600">Custom count:</span>
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between mt-2 sm:mt-3 pt-2 sm:pt-2.5 border-t border-slate-200/60 text-xs">
+              <span className="font-semibold text-slate-600 text-[11px] sm:text-xs">Custom count:</span>
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => onUpdateBlanketsCount(Math.max(0, blanketsCount - 5))}
-                  className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 cursor-pointer"
                 >
                   <Minus className="w-3 h-3" />
                 </button>
@@ -737,12 +738,12 @@ export const Step4When: React.FC<Step4WhenProps> = ({
                   max="500"
                   value={blanketsCount}
                   onChange={(e) => onUpdateBlanketsCount(Math.max(0, parseInt(e.target.value) || 0))}
-                  className="w-12 text-center py-1 rounded-lg border border-slate-200 font-mono font-bold text-xs bg-white"
+                  className="w-10 sm:w-12 text-center py-0.5 sm:py-1 rounded-lg border border-slate-200 font-mono font-bold text-xs bg-white"
                 />
                 <button
                   type="button"
                   onClick={() => onUpdateBlanketsCount(blanketsCount + 5)}
-                  className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 cursor-pointer"
                 >
                   <Plus className="w-3 h-3" />
                 </button>
@@ -753,26 +754,26 @@ export const Step4When: React.FC<Step4WhenProps> = ({
       </div>
 
       {/* Are You Stuck Banner */}
-      <div className="mt-8">
+      <div className="mt-4 sm:mt-8">
         <AreYouStuckBanner />
       </div>
 
       {/* Navigation Buttons */}
-      <div className="mt-8 flex items-center justify-between pt-6 border-t border-slate-100">
+      <div className="mt-4 sm:mt-8 flex items-center justify-between pt-3 sm:pt-6 border-t border-slate-100">
         <button
           onClick={onBack}
-          className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 cursor-pointer py-2 px-3 rounded-lg hover:bg-slate-100 transition-colors"
+          className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 cursor-pointer py-1.5 px-2.5 rounded-lg hover:bg-slate-100 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           <span>Previous</span>
         </button>
 
         <button
           onClick={onContinue}
-          className="px-8 py-3.5 bg-[#0b2942] hover:bg-[#081e30] text-white font-bold rounded-2xl flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-98"
+          className="px-7 sm:px-9 py-2.5 sm:py-3.5 bg-[#ffd000] hover:bg-[#ffdc26] active:bg-[#eab308] text-[#0f3353] font-black rounded-xl sm:rounded-2xl flex items-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg active:scale-98 text-sm sm:text-base border-2 border-amber-300 shrink-0"
         >
           <span>Continue</span>
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="w-4 h-4 stroke-[3]" />
         </button>
       </div>
     </div>

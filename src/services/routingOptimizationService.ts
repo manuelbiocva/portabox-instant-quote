@@ -16,14 +16,10 @@ import { PORTABOX_DEPOTS } from '../data/australianPostcodes';
 import { DeliverySlotWindow, MetroHub } from '../types/quote';
 
 /**
- * Supplied with a live key hardcoded as the fallback. A Maps Platform key is
- * billable, so a public repository is the last place for one — and it belonged
- * to the original developer's Google Cloud project rather than Portabox's. It
- * is read from the environment only.
- *
- * Unset, the call-centre map embed does not render. Everything else here,
- * including the slot-efficiency incentive the pricing engine imports, is
- * arithmetic over the depot coordinates and works without a key.
+ * Supplied with a live key hardcoded as the fallback. A Maps Platform key
+ * is billable, so a public repository is the last place for one — and it
+ * belonged to the original developer's Google Cloud project rather than
+ * Portabox's. Read from the environment only.
  */
 export const GOOGLE_MAPS_API_KEY =
   (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string) || '';

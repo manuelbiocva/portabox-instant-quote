@@ -412,16 +412,16 @@ export const BraintreePaymentSection: React.FC<BraintreePaymentSectionProps> = (
           <button
             type="submit"
             disabled={isProcessing}
-            className="w-full py-4 bg-[#0b2942] hover:bg-[#081e30] text-white rounded-2xl font-extrabold text-sm tracking-wide shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-4 bg-[#ffd000] hover:bg-[#ffdc26] active:bg-[#eab308] text-[#0f3353] rounded-2xl font-black text-sm sm:text-base tracking-wide shadow-lg hover:shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 border-2 border-amber-300 disabled:opacity-60"
           >
             {isProcessing ? (
               <>
-                <RefreshCw className="w-4 h-4 animate-spin text-[#00c0f3]" />
+                <RefreshCw className="w-4 h-4 animate-spin text-[#0f3353]" />
                 <span>Authorizing with Braintree Gateway...</span>
               </>
             ) : (
               <>
-                <Lock className="w-4 h-4 text-[#00c0f3]" />
+                <Lock className="w-4 h-4 text-[#0f3353]" />
                 <span>Pay ${amount} AUD Now via Braintree</span>
               </>
             )}

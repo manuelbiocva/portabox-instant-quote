@@ -181,7 +181,7 @@ export const DeliverySlotPicker: React.FC<DeliverySlotPickerProps> = ({
       )}
 
       {/* Slots grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
         {slots.map((slot) => {
           const isSelected = selectedSlot?.id === slot.id;
           const incentive = getSlotEfficiencyIncentive(
@@ -197,7 +197,7 @@ export const DeliverySlotPicker: React.FC<DeliverySlotPickerProps> = ({
               type="button"
               disabled={!slot.available}
               onClick={() => onSelectSlot(slot)}
-              className={`p-3.5 rounded-2xl border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+              className={`p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
                 !slot.available
                   ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed opacity-60'
                   : isSelected
@@ -208,7 +208,7 @@ export const DeliverySlotPicker: React.FC<DeliverySlotPickerProps> = ({
               }`}
             >
               <div>
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center justify-between mb-0.5 sm:mb-1">
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                     {slot.label}
                   </span>
@@ -221,8 +221,8 @@ export const DeliverySlotPicker: React.FC<DeliverySlotPickerProps> = ({
 
                 {/* Best Value / Eco Incentive Badge */}
                 {incentive.isBestValue && (
-                  <div className="mb-2 p-1.5 rounded-xl bg-emerald-100/90 border border-emerald-300 text-emerald-900 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 flex-wrap">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                  <div className="mb-1.5 p-1 sm:p-1.5 rounded-lg sm:rounded-xl bg-emerald-100/90 border border-emerald-300 text-emerald-900 text-[9.5px] sm:text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 flex-wrap">
+                    <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-700 shrink-0" />
                     <span>
                       {effectiveIncentiveMode === 'emissions_only'
                         ? `🌱 ${incentive.co2SavedKg} kg CO₂ Saved`
@@ -232,31 +232,31 @@ export const DeliverySlotPicker: React.FC<DeliverySlotPickerProps> = ({
                 )}
 
                 {/* Date Selected in the Window Box */}
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#00c0f3] mb-1">
-                  <Calendar className="w-3.5 h-3.5 shrink-0" />
+                <div className="flex items-center gap-1 text-[11px] sm:text-xs font-bold text-[#00c0f3] mb-0.5 sm:mb-1">
+                  <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                   <span>{preferredDate}</span>
                 </div>
 
-                <div className="text-sm font-extrabold text-[#0b2942]">
+                <div className="text-xs sm:text-sm font-extrabold text-[#0b2942]">
                   {slot.timeRange}
                 </div>
 
                 {incentive.isBestValue && (
-                  <div className="mt-1.5 space-y-1">
-                    <p className="text-[10px] text-emerald-800 font-medium leading-tight">
+                  <div className="mt-1 sm:mt-1.5 space-y-0.5 sm:space-y-1">
+                    <p className="text-[9.5px] sm:text-[10px] text-emerald-800 font-medium leading-tight">
                       {effectiveIncentiveMode === 'emissions_only'
                         ? `🌱 Clustered route saves 26 km transit & avoids ${incentive.co2SavedKg} kg CO₂ emissions.`
                         : `🌱 Clustered route saves 26 km (${effectiveDiscountPercent}% discount: -$${incentive.discountAud}) & prevents ${incentive.co2SavedKg} kg CO₂.`}
                     </p>
                     <p className="text-[9px] text-sky-700 font-bold flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3 text-[#00c0f3] shrink-0" />
+                      <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#00c0f3] shrink-0" />
                       <span>Level-lift: zero tilting, items stay completely flat</span>
                     </p>
                   </div>
                 )}
               </div>
 
-              <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+              <div className="mt-2 sm:mt-3 pt-1.5 sm:pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px]">
                 {slot.available ? (
                   <span className="text-emerald-700 font-semibold flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
