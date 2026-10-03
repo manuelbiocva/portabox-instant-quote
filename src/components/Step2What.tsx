@@ -349,9 +349,6 @@ export const Step2What: React.FC<Step2WhatProps> = ({
         <div className="mt-8 p-5 bg-slate-50 rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-200">
           <div>
             <h4 className="text-sm font-extrabold text-[#0b2942]">Where will the container live?</h4>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Choose to keep it on your driveway or in our secure climate-controlled facility.
-            </p>
           </div>
 
           <div className="inline-flex p-1 bg-white border border-slate-200 rounded-xl shadow-xs self-start sm:self-auto">

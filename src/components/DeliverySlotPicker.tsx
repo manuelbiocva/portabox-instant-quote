@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Check, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, Check, Sparkles, CheckCircle2, AlertCircle, TrendingDown, Truck } from 'lucide-react';
 import { DeliverySlotWindow, DepotCalendarConfig, MetroHub } from '../types/quote';
 import {
   getDepotDeliverySlots,
@@ -9,6 +9,8 @@ import {
   initCalendarAuth,
   DEFAULT_DEPOT_CALENDARS,
 } from '../services/googleCalendarService';
+import { getSlotEfficiencyIncentive } from '../services/routingOptimizationService';
+import { loadAppConfig } from '../services/pricingEngine';
 import { User } from 'firebase/auth';
 
 interface DeliverySlotPickerProps {
@@ -17,6 +19,8 @@ interface DeliverySlotPickerProps {
   selectedSlot?: DeliverySlotWindow;
   onSelectSlot: (slot: DeliverySlotWindow) => void;
   depotCalendarConfig?: DepotCalendarConfig;
+  efficiencyDiscountPercentage?: number;
+  ecoIncentiveType?: 'dollar_discount' | 'emissions_only';
   className?: string;
 }
 
@@ -26,8 +30,16 @@ export const DeliverySlotPicker: React.FC<DeliverySlotPickerProps> = ({
   selectedSlot,
   onSelectSlot,
   depotCalendarConfig,
+  efficiencyDiscountPercentage,
+  ecoIncentiveType,
   className = '',
 }) => {
+  const currentAppConfig = loadAppConfig();
+  const effectiveDiscountPercent = efficiencyDiscountPercentage !== undefined
+    ? efficiencyDiscountPercentage
+    : currentAppConfig.efficiencyDiscountPercentage ?? 20;
+  const effectiveIncentiveMode = ecoIncentiveType || currentAppConfig.ecoIncentiveType || 'dollar_discount';
+
   const [slots, setSlots] = useState<DeliverySlotWindow[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -172,6 +184,12 @@ export const DeliverySlotPicker: React.FC<DeliverySlotPickerProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {slots.map((slot) => {
           const isSelected = selectedSlot?.id === slot.id;
+          const incentive = getSlotEfficiencyIncentive(
+            slot.id,
+            undefined,
+            effectiveDiscountPercent,
+            effectiveIncentiveMode
+          );
 
           return (
             <button
@@ -184,6 +202,8 @@ export const DeliverySlotPicker: React.FC<DeliverySlotPickerProps> = ({
                   ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed opacity-60'
                   : isSelected
                   ? 'border-[#00c0f3] bg-sky-50 text-[#0b2942] ring-2 ring-[#00c0f3]/30 shadow-xs'
+                  : incentive.isBestValue
+                  ? 'border-emerald-300 bg-emerald-50/40 hover:bg-emerald-50 text-slate-700 hover:shadow-2xs'
                   : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700 hover:shadow-2xs'
               }`}
             >
@@ -199,6 +219,18 @@ export const DeliverySlotPicker: React.FC<DeliverySlotPickerProps> = ({
                   )}
                 </div>
 
+                {/* Best Value / Eco Incentive Badge */}
+                {incentive.isBestValue && (
+                  <div className="mb-2 p-1.5 rounded-xl bg-emerald-100/90 border border-emerald-300 text-emerald-900 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 flex-wrap">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                    <span>
+                      {effectiveIncentiveMode === 'emissions_only'
+                        ? `🌱 ${incentive.co2SavedKg} kg CO₂ Saved`
+                        : `Save $${incentive.discountAud} + 🌱 ${incentive.co2SavedKg} kg CO₂`}
+                    </span>
+                  </div>
+                )}
+
                 {/* Date Selected in the Window Box */}
                 <div className="flex items-center gap-1.5 text-xs font-bold text-[#00c0f3] mb-1">
                   <Calendar className="w-3.5 h-3.5 shrink-0" />
@@ -208,6 +240,20 @@ export const DeliverySlotPicker: React.FC<DeliverySlotPickerProps> = ({
                 <div className="text-sm font-extrabold text-[#0b2942]">
                   {slot.timeRange}
                 </div>
+
+                {incentive.isBestValue && (
+                  <div className="mt-1.5 space-y-1">
+                    <p className="text-[10px] text-emerald-800 font-medium leading-tight">
+                      {effectiveIncentiveMode === 'emissions_only'
+                        ? `🌱 Clustered route saves 26 km transit & avoids ${incentive.co2SavedKg} kg CO₂ emissions.`
+                        : `🌱 Clustered route saves 26 km (${effectiveDiscountPercent}% discount: -$${incentive.discountAud}) & prevents ${incentive.co2SavedKg} kg CO₂.`}
+                    </p>
+                    <p className="text-[9px] text-sky-700 font-bold flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-[#00c0f3] shrink-0" />
+                      <span>Level-lift: zero tilting, items stay completely flat</span>
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
@@ -220,11 +266,15 @@ export const DeliverySlotPicker: React.FC<DeliverySlotPickerProps> = ({
                   <span className="text-slate-400 font-medium">Fully booked</span>
                 )}
 
-                {slot.id === 'morning' && slot.available && (
+                {incentive.isBestValue ? (
+                  <span className="text-[9px] font-black uppercase text-emerald-800 bg-emerald-200/80 px-1.5 py-0.5 rounded">
+                    Eco-Route
+                  </span>
+                ) : slot.id === 'morning' && slot.available ? (
                   <span className="text-[9px] font-bold text-sky-700 bg-sky-100 px-1.5 py-0.5 rounded">
                     Popular
                   </span>
-                )}
+                ) : null}
               </div>
             </button>
           );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Pencil, MessageSquare } from 'lucide-react';
+import { Check, Pencil, ChevronDown, TrendingDown } from 'lucide-react';
 import { PostcodeRecord } from '../data/australianPostcodes';
 import { BillingCycle, ContainerSizeId, DeliverySlotWindow, ServiceType, StorageDuration } from '../types/quote';
 
@@ -94,6 +94,23 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
 
     return `${dur} · ${cycle} · from ${preferredDate}`;
   };
+
+  // Competitor benchmarking consistent with Page 6:
+  const containerM3 = containerSize === 'small_10m3' ? 10 : containerSize === 'medium_19m3' ? 19 : containerSize === 'combo_35m3' ? 35 : 25;
+  const totalVolumeM3 = containerM3 * containerCount;
+  const industryBenchmarkRatePerM3 = 15.20;
+  const estimatedMonthlyStorage = containerSize === 'small_10m3' ? 209 * containerCount : 219 * containerCount;
+  const portaboxRatePerM3 = Math.round((estimatedMonthlyStorage / totalVolumeM3) * 100) / 100;
+  const marketMonthlyCost = Math.round(totalVolumeM3 * industryBenchmarkRatePerM3);
+  const monthlyCubicSavings = Math.max(0, marketMonthlyCost - estimatedMonthlyStorage);
+  const cubicSavingsPercent = Math.round((monthlyCubicSavings / marketMonthlyCost) * 100);
+
+  const competitorSmallContainersCount = Math.max(containerCount + 1, Math.ceil(totalVolumeM3 / 8));
+  const deliveryFeePerUnit = 149;
+  const competitorDeliveryCost = competitorSmallContainersCount * deliveryFeePerUnit;
+  const portaboxDeliveryCost = containerCount * deliveryFeePerUnit;
+  const excessDeliveryCharges = Math.max(0, competitorDeliveryCost - portaboxDeliveryCost);
+  const firstMonthTotalSavings = monthlyCubicSavings + excessDeliveryCharges;
 
   return (
     <div className="w-full space-y-4">
@@ -360,84 +377,101 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
               </span>
             </div>
           </div>
-
-          {/* Step 6: Your quote */}
-          <div
-            className={`p-3.5 rounded-xl transition-all border ${
-              currentStep === 6
-                ? 'border-[#00c0f3] bg-[#f0f9ff]/50 ring-2 ring-[#00c0f3]/20'
-                : 'border-slate-100 bg-white'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <div
-                className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                  currentStep === 6 ? 'bg-[#00c0f3] text-white' : 'bg-slate-100 text-slate-500'
-                }`}
-              >
-                6
-              </div>
-              <span className={`text-sm font-semibold ${currentStep === 6 ? 'text-[#0b2942]' : 'text-slate-400'}`}>
-                Detailed quote
-              </span>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Sidebar Are you stuck text box */}
-      <div className="bg-sky-50/80 rounded-2xl p-4 border border-sky-200/80 shadow-2xs">
-        <div className="flex items-start gap-3">
-          <div className="p-2 rounded-xl bg-[#00c0f3] text-white shrink-0 shadow-xs">
-            <MessageSquare className="w-4 h-4 stroke-[2.5]" />
-          </div>
-          <div>
-            <h4 className="text-xs font-extrabold text-[#0b2942]">Are you stuck?</h4>
-            <p className="text-[11px] text-slate-600 mt-0.5">Text us and we will help you.</p>
-            <a
-              href="sms:0488883234"
-              className="inline-flex items-center gap-1.5 mt-2 text-xs font-bold text-[#00c0f3] hover:underline"
-            >
-              <span>Text us now (0488 883 234)</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* Price match guarantee Banner */}
-      <div className="bg-[#0b2942] rounded-2xl p-5 text-white shadow-xs space-y-3">
+      {/* Price Match Guarantee Card with Check Out Competitors Prices - Consistent with Page 6 */}
+      <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5 space-y-3">
         <div>
-          <p className="text-xs uppercase tracking-wider text-sky-200 font-bold">Price match guarantee</p>
-          <p className="text-base font-bold text-white mt-0.5">Seen it cheaper? We'll beat it.</p>
-          <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+          <span className="text-[10px] font-black uppercase tracking-wider bg-[#0b2942] text-white px-2 py-0.5 rounded-full">
+            PRICE MATCH GUARANTEE
+          </span>
+          <h4 className="text-base font-extrabold text-[#0b2942] mt-1.5">
+            Seen it cheaper? We'll beat it.
+          </h4>
+          <p className="text-xs text-slate-500 mt-0.5">
             Provide any comparable written quote from another Australian container service and we guarantee a lower rate.
           </p>
         </div>
 
-        {/* Check out our competitors prices container under Price match guarantee */}
-        <div className="pt-2 border-t border-slate-700/80">
-          <div className="bg-slate-900/60 rounded-xl p-3.5 border border-slate-700/60 space-y-2">
-            <span className="text-xs font-bold text-sky-300 block">
-              Check out our competitors prices
+        {/* Check out our competitors prices container */}
+        <details className="group border border-slate-200 rounded-xl bg-white p-3.5 transition-all">
+          <summary className="flex items-center justify-between cursor-pointer list-none select-none text-xs font-bold text-[#0b2942] hover:text-[#00c0f3] transition-colors">
+            <span className="flex items-center gap-2 text-[#00c0f3]">
+              <TrendingDown className="w-4 h-4 shrink-0" />
+              <span className="text-[#0b2942] font-black">Check out our competitors prices</span>
             </span>
-            <p className="text-[11px] text-slate-300 leading-normal">
-              Industry standard modular storage benchmarks average <strong className="text-white font-mono">$15.20/m³/mo</strong>. Portabox provides full-size container capacity with substantially lower cost per cubic meter.
+            <ChevronDown className="w-4 h-4 text-[#00c0f3] group-open:rotate-180 transition-transform shrink-0" />
+          </summary>
+
+          <div className="pt-3 mt-3 border-t border-slate-100 space-y-3 text-xs">
+            <p className="text-slate-600 leading-relaxed text-xs">
+              Portable storage in Australia is frequently in smaller 7 m³ to 10 m³ containers with significantly higher rates per cubic meter. Portabox provides full-size container capacity with substantially lower cost per cubic meter.
             </p>
-            <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
-              <div className="bg-slate-800/80 p-2 rounded-lg border border-slate-700">
-                <span className="text-slate-400 block text-[9px] uppercase font-bold">Competitor Avg</span>
-                <span className="font-mono font-bold text-slate-200">$15.20/m³</span>
+
+            <div className="grid grid-cols-1 gap-2.5 pt-1">
+              {/* 1. Monthly Storage Rate Comparison */}
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">
+                  1. Monthly Storage Rate ({totalVolumeM3} m³)
+                </span>
+                <div className="flex justify-between items-baseline text-xs">
+                  <span className="text-slate-600">Smaller containers ($15.20/m³):</span>
+                  <span className="font-mono font-bold text-slate-700">${marketMonthlyCost}/mo</span>
+                </div>
+                <div className="flex justify-between items-baseline text-xs">
+                  <span className="text-slate-900 font-semibold">Portabox (${portaboxRatePerM3}/m³):</span>
+                  <span className="font-mono font-bold text-[#00c0f3]">${estimatedMonthlyStorage}/mo</span>
+                </div>
+                <div className="pt-1.5 border-t border-slate-200 text-[11px] text-emerald-700 font-bold">
+                  ✓ Save ${monthlyCubicSavings}/mo on storage ({cubicSavingsPercent}% lower rate)
+                </div>
               </div>
-              <div className="bg-sky-950/60 p-2 rounded-lg border border-sky-600/40">
-                <span className="text-sky-300 block text-[9px] uppercase font-bold">Portabox</span>
-                <span className="font-mono font-bold text-[#00c0f3]">$8.76 – $10.45</span>
+
+              {/* 2. Excess Delivery Charges for Multiple Smaller Containers */}
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">
+                  2. Excess Container Delivery Fees
+                </span>
+                <div className="flex justify-between items-baseline text-xs">
+                  <span className="text-slate-600">{competitorSmallContainersCount} smaller containers needed:</span>
+                  <span className="font-mono font-bold text-slate-700">${competitorDeliveryCost}</span>
+                </div>
+                <div className="flex justify-between items-baseline text-xs">
+                  <span className="text-slate-900 font-semibold">{containerCount} Portabox container{containerCount > 1 ? 's' : ''}:</span>
+                  <span className="font-mono font-bold text-[#00c0f3]">${portaboxDeliveryCost}</span>
+                </div>
+                <div className="pt-1.5 border-t border-slate-200 text-[11px] text-emerald-700 font-bold">
+                  ✓ Save ${excessDeliveryCharges} in excess delivery trips avoided
+                </div>
               </div>
             </div>
-            <p className="text-[9px] text-slate-400 italic pt-0.5">
-              Benchmarked: September 2026 across Australian hubs.
+
+            {/* Combined Savings Total */}
+            <div className="p-3 rounded-xl bg-emerald-500 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+              <div>
+                <span className="text-xs font-black uppercase tracking-wider block">
+                  First-Month Combined Savings
+                </span>
+                <span className="text-[11px] text-emerald-100">
+                  Storage rate saving (${monthlyCubicSavings}) + excess delivery charges avoided (${excessDeliveryCharges})
+                </span>
+              </div>
+              <div className="text-left sm:text-right shrink-0">
+                <span className="text-2xl font-black font-mono">
+                  ${firstMonthTotalSavings}
+                </span>
+                <div className="text-[10px] text-emerald-100 font-bold">
+                  Total First-Month Advantage
+                </div>
+              </div>
+            </div>
+
+            <p className="text-[10px] text-slate-400 italic">
+              Comparison data benchmarked: September 2026 across Adelaide, Melbourne, Sydney, and Brisbane. Includes excess delivery fees incurred by requiring multiple 7-9 m³ units instead of 1 full-size Portabox container.
             </p>
           </div>
-        </div>
+        </details>
       </div>
     </div>
   );

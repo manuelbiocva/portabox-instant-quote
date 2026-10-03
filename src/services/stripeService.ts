@@ -17,7 +17,7 @@ export function getStripePromise(publishableKey?: string): Promise<Stripe | null
       stripePromise = Promise.resolve(null);
     }
   }
-  return stripePromise;
+  return stripePromise || Promise.resolve(null);
 }
 
 export interface PaymentProcessResult {

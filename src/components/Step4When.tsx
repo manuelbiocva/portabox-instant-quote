@@ -479,7 +479,7 @@ export const Step4When: React.FC<Step4WhenProps> = ({
             </div>
           </button>
 
-          {/* 5. 12 months paid upfront then monthly */}
+          {/* 5. 12 months upfront then monthly */}
           <button
             type="button"
             onClick={() => onSelectBillingCycle('12_months_upfront')}
@@ -498,7 +498,7 @@ export const Step4When: React.FC<Step4WhenProps> = ({
                 {billingCycle === '12_months_upfront' && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
               </div>
               <div className="text-sm font-extrabold text-[#0b2942] flex items-center gap-2">
-                <span>12 months paid upfront then monthly</span>
+                <span>12 months upfront then monthly</span>
                 <span className="text-[10px] font-extrabold text-white bg-[#00c0f3] px-2 py-0.5 rounded-full">
                   MAX SAVINGS
                 </span>

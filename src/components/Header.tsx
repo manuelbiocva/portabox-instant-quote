@@ -1,11 +1,14 @@
 import React from 'react';
-import { Phone, ChevronLeft, ShieldCheck, SlidersHorizontal } from 'lucide-react';
+import { Phone, ChevronLeft, ShieldCheck, SlidersHorizontal, User, Calendar } from 'lucide-react';
 
 interface HeaderProps {
   currentStep: number;
   onBack?: () => void;
   isAdminOpen: boolean;
   onToggleAdmin: () => void;
+  isCallCenterOpen?: boolean;
+  onToggleCallCenter?: () => void;
+  onOpenCustomerPortal: () => void;
   phone?: string;
   siteUrl?: string;
 }
@@ -19,7 +22,8 @@ interface HeaderProps {
  * set VITE_SITE_URL in Vercel, which wins over it — once the rebuild is the
  * site people actually arrive from.
  */
-const SITE_URL = (import.meta.env.VITE_SITE_URL as string) || 'https://portabox-website.vercel.app/';
+const SITE_URL =
+  (import.meta.env.VITE_SITE_URL as string) || 'https://portabox-website.vercel.app/';
 
 /* One shape for the arrow whether it steps back through the quote or leaves
    it, so the corner does not change under people as they move through. */
@@ -33,6 +37,9 @@ export const Header: React.FC<HeaderProps> = ({
   onBack,
   isAdminOpen,
   onToggleAdmin,
+  isCallCenterOpen = false,
+  onToggleCallCenter,
+  onOpenCustomerPortal,
   phone = '1800 467 637',
   siteUrl = SITE_URL,
 }) => {
@@ -65,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-6xl mx-auto py-3 sm:py-4 px-3 sm:px-8 flex items-center justify-between">
         {/* Left: back a step, or back to the website from the first one */}
         <div className="w-16 sm:w-28 flex items-center">
-          {isAdminOpen ? (
+          {isAdminOpen || isCallCenterOpen ? (
             <div className="w-9 sm:w-10" />
           ) : currentStep > 1 ? (
             <button
@@ -101,8 +108,34 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Right: Phone number & Admin button */}
+        {/* Right: Call Center, Customer Portal, Admin & Phone */}
         <div className="w-auto flex items-center gap-1.5 sm:gap-2.5 justify-end">
+          {onToggleCallCenter && (
+            <button
+              onClick={onToggleCallCenter}
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-full border transition-all cursor-pointer shadow-2xs ${
+                isCallCenterOpen
+                  ? 'bg-[#00c0f3] text-white border-[#00c0f3] shadow-xs'
+                  : 'bg-white text-[#0b2942] border-slate-200 hover:bg-sky-50'
+              }`}
+              title="Call Center Google Calendar & Routing Optimizer"
+            >
+              <Calendar className="w-3.5 h-3.5 text-[#00c0f3]" />
+              <span className="hidden md:inline font-bold">Call Center Dispatch</span>
+              <span className="md:hidden font-bold">Dispatch</span>
+            </button>
+          )}
+
+          <button
+            onClick={onOpenCustomerPortal}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-full border border-sky-200 bg-sky-50 hover:bg-sky-100 text-[#0b2942] transition-all cursor-pointer shadow-2xs"
+            title="Log in to view active containers, delivery times, quotes, and billing"
+          >
+            <User className="w-3.5 h-3.5 text-[#00c0f3]" />
+            <span className="hidden sm:inline font-bold">Customer Portal</span>
+            <span className="sm:hidden font-bold">Portal</span>
+          </button>
+
           <button
             onClick={onToggleAdmin}
             className={`hidden md:flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-full border transition-all cursor-pointer ${
@@ -128,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Progress Bar Across the Top */}
-      {!isAdminOpen && (
+      {!isAdminOpen && !isCallCenterOpen && (
         <div className="w-full bg-slate-200/90 h-1.5 relative overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-[#00c0f3] to-[#0096c0] transition-all duration-300 ease-out"

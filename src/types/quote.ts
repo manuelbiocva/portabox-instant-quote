@@ -126,9 +126,15 @@ export interface AppConfig {
   promotions: PromotionRule[];
   blockedPostcodes: BlockedPostcode[];
   depotCalendars?: Record<string, DepotCalendarConfig>;
+  braintreeMerchantId?: string;
+  braintreeTokenizationKey?: string;
+  braintreeEnvironment?: 'sandbox' | 'production';
   stripePublishableKey?: string;
   stripeLiveMode?: boolean;
   googlePayEnabled?: boolean;
+  enableCallCenterDispatch?: boolean;
+  efficiencyDiscountPercentage?: number;
+  ecoIncentiveType?: 'dollar_discount' | 'emissions_only';
   phone: string;
 }
 
@@ -227,11 +233,21 @@ export interface QuoteBreakdown {
     description: string;
   }[];
   totalDiscount: number;
+  appliedPromoCode?: string;
   
   summaryText: string;
   smsPreviewText: string;
   selectedSlot?: DeliverySlotWindow;
   calendarEventLink?: string;
+  ecoEmissionsInfo?: {
+    isBestValue: boolean;
+    co2SavedKg: number;
+    co2SavedText: string;
+    reason: string;
+    incentiveMode: 'dollar_discount' | 'emissions_only';
+    discountPercent: number;
+    discountAud: number;
+  };
 }
 
 export interface CustomerLead {

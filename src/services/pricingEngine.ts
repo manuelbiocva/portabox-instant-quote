@@ -22,6 +22,7 @@ import {
   PostcodeRecord,
 } from '../data/australianPostcodes';
 import { DEFAULT_DEPOT_CALENDARS } from './googleCalendarService';
+import { getSlotEfficiencyIncentive } from './routingOptimizationService';
 
 export const DEFAULT_PACKING_SUPPLIES: PackingSuppliesConfig = {
   boxSinglePrice: 2.5,
@@ -104,7 +105,26 @@ export const DEFAULT_CONFIG: AppConfig = {
       description: 'Get 50% off your first month storage rent',
       type: 'percent_off_first_month',
       value: 50,
-      minDurationMonths: 3,
+      active: true,
+      autoApply: false,
+    },
+    {
+      id: 'promo-save-50',
+      name: '$50 Instant Quote Voucher',
+      code: 'SAVE50',
+      description: '$50 off your first payment',
+      type: 'fixed_discount',
+      value: 50,
+      active: true,
+      autoApply: false,
+    },
+    {
+      id: 'promo-save-100',
+      name: '$100 Booking Bonus Voucher',
+      code: 'SAVE100',
+      description: '$100 off your first payment',
+      type: 'fixed_discount',
+      value: 100,
       active: true,
       autoApply: false,
     },
@@ -148,6 +168,9 @@ export const DEFAULT_CONFIG: AppConfig = {
     { postcode: '7151', suburb: 'Southport TAS', reason: 'Tasmania service pending depot launch.' },
   ],
   depotCalendars: DEFAULT_DEPOT_CALENDARS,
+  enableCallCenterDispatch: true,
+  efficiencyDiscountPercentage: 20,
+  ecoIncentiveType: 'dollar_discount',
 };
 
 export const CONTAINER_SPECS = {
@@ -335,6 +358,9 @@ export function loadAppConfig(): AppConfig {
       promotions: parsed.promotions || DEFAULT_CONFIG.promotions,
       blockedPostcodes: parsed.blockedPostcodes || DEFAULT_CONFIG.blockedPostcodes,
       depotCalendars: parsed.depotCalendars || DEFAULT_DEPOT_CALENDARS,
+      enableCallCenterDispatch: parsed.enableCallCenterDispatch !== undefined ? Boolean(parsed.enableCallCenterDispatch) : DEFAULT_CONFIG.enableCallCenterDispatch,
+      efficiencyDiscountPercentage: parsed.efficiencyDiscountPercentage !== undefined ? Number(parsed.efficiencyDiscountPercentage) : DEFAULT_CONFIG.efficiencyDiscountPercentage,
+      ecoIncentiveType: parsed.ecoIncentiveType === 'emissions_only' ? 'emissions_only' : 'dollar_discount',
     };
   } catch (err) {
     console.error('Failed to load config from storage, using defaults:', err);
@@ -1039,19 +1065,24 @@ export function calculateQuote(params: {
       break;
   }
 
-  // 9. Promotions
-  const appliedPromotions: {
+  // 9. Promotions (Strictly ONE promo/discount applied at a time, including Eco Discount)
+  interface PromoCandidate {
     rule: PromotionRule;
     discountAmount: number;
     description: string;
-  }[] = [];
+    isExplicitCode: boolean;
+  }
+  const candidates: PromoCandidate[] = [];
 
   config.promotions
     .filter((p) => p.active)
     .forEach((promo) => {
       let isEligible = false;
+      const isExplicitCode = Boolean(
+        promo.code && appliedPromoCode && promo.code.toUpperCase() === appliedPromoCode.trim().toUpperCase()
+      );
 
-      if (promo.code && appliedPromoCode && promo.code.toUpperCase() === appliedPromoCode.trim().toUpperCase()) {
+      if (isExplicitCode) {
         isEligible = true;
       } else if (promo.autoApply && !promo.code) {
         isEligible = true;
@@ -1105,14 +1136,87 @@ export function calculateQuote(params: {
         }
 
         if (discount > 0) {
-          appliedPromotions.push({
+          candidates.push({
             rule: promo,
             discountAmount: discount,
             description: desc,
+            isExplicitCode,
           });
         }
       }
     });
+
+  // 9b. Routing Efficiency & CO2 Emissions Calculation
+  const efficiencyDiscountPct = config.efficiencyDiscountPercentage !== undefined ? config.efficiencyDiscountPercentage : 20;
+  const ecoIncentiveType = config.ecoIncentiveType || 'dollar_discount';
+  let ecoEmissionsInfo: QuoteBreakdown['ecoEmissionsInfo'] = undefined;
+
+  if (params.selectedSlot) {
+    const slotIncentive = getSlotEfficiencyIncentive(
+      params.selectedSlot.id,
+      originPostcode.postcode,
+      efficiencyDiscountPct,
+      ecoIncentiveType
+    );
+
+    if (slotIncentive.isBestValue) {
+      ecoEmissionsInfo = {
+        isBestValue: true,
+        co2SavedKg: slotIncentive.co2SavedKg,
+        co2SavedText: slotIncentive.co2SavedText,
+        reason: slotIncentive.reason,
+        incentiveMode: ecoIncentiveType,
+        discountPercent: efficiencyDiscountPct,
+        discountAud: slotIncentive.discountAud,
+      };
+
+      // Only add as a candidate dollar discount if incentive mode is dollar_discount
+      if (ecoIncentiveType === 'dollar_discount' && slotIncentive.discountAud > 0) {
+        candidates.push({
+          rule: {
+            id: 'promo-efficiency-slot',
+            name: `Best Value / Eco-Route Incentive (${efficiencyDiscountPct}%)`,
+            code: 'ECO_ROUTE',
+            description: `${efficiencyDiscountPct}% of fleet logistics efficiency savings passed directly to you`,
+            type: 'fixed_discount',
+            value: slotIncentive.discountAud,
+            active: true,
+            autoApply: true,
+          },
+          discountAmount: slotIncentive.discountAud,
+          description: `Best Value Window (${efficiencyDiscountPct}% Efficiency Incentive: -$${slotIncentive.discountAud}) · 🌱 ${slotIncentive.co2SavedText}`,
+          isExplicitCode: false,
+        });
+      }
+    }
+  }
+
+  // 9c. Enforce Single Promotion Rule (Exactly ONE promotion/discount active at a time, including Eco discount)
+  const appliedPromotions: {
+    rule: PromotionRule;
+    discountAmount: number;
+    description: string;
+  }[] = [];
+
+  if (candidates.length > 0) {
+    // If customer explicitly entered a promo code, that takes precedence over auto-applied eco discount
+    const explicitCandidate = candidates.find((c) => c.isExplicitCode);
+    if (explicitCandidate) {
+      appliedPromotions.push({
+        rule: explicitCandidate.rule,
+        discountAmount: explicitCandidate.discountAmount,
+        description: explicitCandidate.description,
+      });
+    } else {
+      // Otherwise, apply the single highest discount candidate
+      candidates.sort((a, b) => b.discountAmount - a.discountAmount);
+      appliedPromotions.push({
+        rule: candidates[0].rule,
+        discountAmount: candidates[0].discountAmount,
+        description: candidates[0].description,
+      });
+    }
+  }
 
   const totalDiscount = appliedPromotions.reduce((sum, p) => sum + p.discountAmount, 0);
 
@@ -1196,8 +1300,10 @@ export function calculateQuote(params: {
     collectionFeeEstimate,
     appliedPromotions,
     totalDiscount,
+    appliedPromoCode: params.appliedPromoCode,
     summaryText,
     smsPreviewText,
     selectedSlot: params.selectedSlot,
+    ecoEmissionsInfo,
   };
 }

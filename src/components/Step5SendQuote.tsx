@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, Mail, Phone, ShieldCheck, Sparkles, CheckCircle2, Calendar } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Mail, Phone, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
 import { QuoteBreakdown } from '../types/quote';
 import { AreYouStuckBanner } from './AreYouStuckBanner';
 
@@ -28,7 +28,6 @@ export const Step5SendQuote: React.FC<Step5SendQuoteProps> = ({
   const [firstName, setFirstName] = useState(initialCustomerData?.firstName || '');
   const [email, setEmail] = useState(initialCustomerData?.email || '');
   const [mobile, setMobile] = useState(initialCustomerData?.mobile || '');
-  const [agreedToContact, setAgreedToContact] = useState(true);
   const [errors, setErrors] = useState<{ email?: string; mobile?: string }>({});
 
   const validate = () => {
@@ -58,7 +57,7 @@ export const Step5SendQuote: React.FC<Step5SendQuoteProps> = ({
       firstName: firstName.trim() || 'Valued Customer',
       email: email.trim(),
       mobile: mobile.trim(),
-      agreedToContact,
+      agreedToContact: true,
     });
   };
 
@@ -77,28 +76,6 @@ export const Step5SendQuote: React.FC<Step5SendQuoteProps> = ({
       <p className="text-sm sm:text-base text-slate-500 max-w-xl">
         Enter your details below and your tailored quote will be ready immediately.
       </p>
-
-      {/* Selected Slot & Delivery Info Badge */}
-      {quote.selectedSlot && (
-        <div className="mt-4 p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-sky-100 text-[#00c0f3]">
-              <Calendar className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="font-bold text-[#0b2942]">
-                Drop-off scheduled: {quote.preferredDate} ({quote.selectedSlot.label})
-              </div>
-              <div className="text-[11px] text-slate-500">
-                Window: {quote.selectedSlot.timeRange} · {quote.originPostcode.suburb}
-              </div>
-            </div>
-          </div>
-          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-2.5 py-1 rounded-full w-fit">
-            ✓ Slot Window Held
-          </span>
-        </div>
-      )}
 
       {/* Contact Form */}
       <form onSubmit={handleSendQuoteClick} className="mt-8 space-y-5">
@@ -175,21 +152,6 @@ export const Step5SendQuote: React.FC<Step5SendQuoteProps> = ({
             placeholder="e.g. Sarah"
             className="w-full sm:w-1/2 px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:border-slate-300 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#00c0f3] focus:outline-none"
           />
-        </div>
-
-        {/* Checkbox agreement */}
-        <div className="pt-2">
-          <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-600 select-none">
-            <input
-              type="checkbox"
-              checked={agreedToContact}
-              onChange={(e) => setAgreedToContact(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded text-[#00c0f3] focus:ring-[#00c0f3] border-slate-300 cursor-pointer"
-            />
-            <span>
-              Text & email me this quote and hold my locked rate for 14 days. No pushy spam.
-            </span>
-          </label>
         </div>
 
         {/* What You Receive Card */}

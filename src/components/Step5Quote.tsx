@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { RotateCcw, Check, Tag, Phone, TrendingDown, Sparkles, Calendar, Clock, ExternalLink, AlertCircle, CalendarCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { RotateCcw, Check, Tag, Phone, TrendingDown, ChevronDown, Sparkles, Calendar, Clock, ExternalLink, AlertCircle, CalendarCheck } from 'lucide-react';
 import { PORTABOX_IMAGES } from '../assets/images';
 import { QuoteBreakdown } from '../types/quote';
 import { AreYouStuckBanner } from './AreYouStuckBanner';
@@ -10,8 +10,8 @@ import {
   STANDARD_DELIVERY_SLOTS,
 } from '../services/googleCalendarService';
 import { getMetroHubForPostcode } from '../services/pricingEngine';
-import { StripePaymentSection } from './StripePaymentSection';
-import { PaymentProcessResult } from '../services/stripeService';
+import { BraintreePaymentSection } from './BraintreePaymentSection';
+import { BraintreePaymentResult } from '../services/braintreeService';
 import { DeliverySlotWindow, DepotCalendarConfig } from '../types/quote';
 
 interface Step5QuoteProps {
@@ -27,7 +27,7 @@ interface Step5QuoteProps {
   onUpdateBlanketsCount?: (count: number) => void;
   onSelectSlot?: (slot: DeliverySlotWindow) => void;
   depotCalendarConfig?: DepotCalendarConfig;
-  onPaymentSuccess?: (result: PaymentProcessResult) => void;
+  onPaymentSuccess?: (result: BraintreePaymentResult) => void;
   phone?: string;
 }
 
@@ -44,7 +44,8 @@ export const Step5Quote: React.FC<Step5QuoteProps> = ({
   phone = '1800 467 637',
 }) => {
   const [promoCodeInput, setPromoCodeInput] = useState('');
-  const [promoFeedback, setPromoFeedback] = useState<string | null>(null);
+  const [promoFeedback, setPromoFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [hasPaid, setHasPaid] = useState(false);
   const [isBooked, setIsBooked] = useState(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isSchedulingCalendar, setIsSchedulingCalendar] = useState(false);
@@ -57,6 +58,24 @@ export const Step5Quote: React.FC<Step5QuoteProps> = ({
     available: true,
     slotsRemaining: 2,
   };
+
+  // Watch for applied promo code changes to notify the user
+  useEffect(() => {
+    if (quote.appliedPromoCode) {
+      if (quote.totalDiscount > 0) {
+        const promoDesc = quote.appliedPromotions?.[0]?.description || `$${quote.totalDiscount} discount`;
+        setPromoFeedback({
+          type: 'success',
+          message: `✓ Promo code "${quote.appliedPromoCode}" applied! ${promoDesc}. Your first payment has been adjusted to $${quote.firstPaymentTotal}.`,
+        });
+      } else {
+        setPromoFeedback({
+          type: 'error',
+          message: `Coupon code "${quote.appliedPromoCode}" is invalid, expired, or not applicable to this quote.`,
+        });
+      }
+    }
+  }, [quote.appliedPromoCode, quote.totalDiscount, quote.firstPaymentTotal, quote.appliedPromotions]);
 
   const handleInitiateCalendarBooking = async () => {
     const token = getCalendarAccessToken();
@@ -108,9 +127,13 @@ export const Step5Quote: React.FC<Step5QuoteProps> = ({
   };
 
   const handleApplyPromo = () => {
-    if (!promoCodeInput.trim()) return;
-    onApplyPromoCode(promoCodeInput.trim());
-    setPromoFeedback(`Coupon "${promoCodeInput.trim()}" applied!`);
+    const code = promoCodeInput.trim().toUpperCase();
+    if (!code) {
+      setPromoFeedback({ type: 'error', message: 'Please enter a promo code.' });
+      return;
+    }
+    setPromoFeedback(null);
+    onApplyPromoCode(code);
   };
 
   const getImageForSize = () => {
@@ -160,6 +183,15 @@ export const Step5Quote: React.FC<Step5QuoteProps> = ({
   const monthlyCubicSavings = Math.max(0, marketMonthlyCost - quote.monthlyStorageFee);
   const cubicSavingsPercent = Math.round((monthlyCubicSavings / marketMonthlyCost) * 100);
 
+  // Competitor Excess Delivery Charges calculation:
+  // Standard smaller portable containers in Australia are 7 m³ to 9 m³ (average ~8 m³ usable capacity).
+  const competitorSmallContainersCount = Math.max(quote.containerCount + 1, Math.ceil(totalVolumeM3 / 8));
+  const deliveryFeePerUnit = quote.domesticLegFeePerContainer || 149;
+  const competitorDeliveryCost = competitorSmallContainersCount * deliveryFeePerUnit;
+  const portaboxDeliveryCost = quote.initialDeliveryFee;
+  const excessDeliveryCharges = Math.max(0, competitorDeliveryCost - portaboxDeliveryCost);
+  const firstMonthTotalSavings = monthlyCubicSavings + excessDeliveryCharges;
+
   // 2. Billing cycle upfront savings:
   let billingUpfrontSavings = 0;
   if (quote.billingCycle === 'monthly') {
@@ -172,16 +204,13 @@ export const Step5Quote: React.FC<Step5QuoteProps> = ({
     billingUpfrontSavings = (quote.weeklyStorageFee * 52) - quote.currentPeriodicStorageFee;
   }
 
-  // 3. Total Combined Savings:
-  const totalSavedDisplay = (billingUpfrontSavings > 0 ? billingUpfrontSavings : monthlyCubicSavings) + (quote.totalDiscount || 0);
+  // 3. Total Combined Savings (Includes storage savings, excess delivery avoided, and any promo code discount):
+  const totalSavedDisplay = (billingUpfrontSavings > 0 ? billingUpfrontSavings : monthlyCubicSavings) + excessDeliveryCharges + (quote.totalDiscount || 0);
 
   return (
     <div className="final-quote-container bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 lg:p-10 shadow-xs border border-slate-200/80 animate-in fade-in duration-200">
       {/* Top action row */}
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-extrabold uppercase tracking-widest text-[#00c0f3] font-['Cabinet_Grotesk',sans-serif]">
-          STEP 6 OF 6 · DETAILED QUOTE & COMPARISON
-        </span>
+      <div className="flex items-center justify-end">
         <button
           onClick={onResetQuote}
           className="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -209,16 +238,29 @@ export const Step5Quote: React.FC<Step5QuoteProps> = ({
           </p>
           <p className="text-xs text-sky-100/90 mt-0.5 max-w-md leading-relaxed">
             Includes initial empty container delivery {quote.containerCount > 1 ? `($${quote.domesticLegFeePerContainer}/container × ${quote.containerCount} = $${quote.initialDeliveryFee})` : `($${quote.initialDeliveryFee})`} + {getBillingPeriodDescription()} {quote.containerCount > 1 ? `($${quote.billingCycle === 'weekly' ? quote.weeklyRatePerContainer : quote.monthlyRatePerContainer}/container × ${quote.containerCount} = $${quote.currentPeriodicStorageFee})` : `($${quote.currentPeriodicStorageFee})`}{quote.packingSupplies.totalSuppliesPrice > 0 ? ` + packing supplies ($${quote.packingSupplies.totalSuppliesPrice})` : ''}
+            {quote.totalDiscount > 0 ? ` - promo discount (-$${quote.totalDiscount})` : ''}
           </p>
         </div>
         <div className="text-left sm:text-right shrink-0">
-          <div className="text-3xl sm:text-5xl font-extrabold tracking-tight font-mono">
-            ${quote.firstPaymentTotal}
+          <div className="flex items-baseline sm:justify-end gap-2.5">
+            {quote.totalDiscount > 0 && (
+              <span className="text-2xl sm:text-3xl font-extrabold line-through text-sky-200 font-mono">
+                ${quote.firstPaymentTotal + quote.totalDiscount}
+              </span>
+            )}
+            <div className="text-3xl sm:text-5xl font-extrabold tracking-tight font-mono">
+              ${quote.firstPaymentTotal}
+            </div>
           </div>
           <div className="mt-1 flex items-center sm:justify-end gap-1.5 flex-wrap">
             <span className="text-xs text-sky-100 font-medium">
               GST included · All billing in advance
             </span>
+            {quote.totalDiscount > 0 && (
+              <span className="bg-emerald-500 text-white font-black text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+                -${quote.totalDiscount} PROMO APPLIED
+              </span>
+            )}
             {totalSavedDisplay > 0 && (
               <span className="bg-emerald-300 text-slate-950 font-black text-[11px] px-2.5 py-0.5 rounded-full shadow-2xs">
                 TOTAL SAVED: ${totalSavedDisplay}
@@ -228,38 +270,45 @@ export const Step5Quote: React.FC<Step5QuoteProps> = ({
         </div>
       </div>
 
-      {/* Prominent Total Saved Box in Quote Section */}
-      <div className="mt-4 p-4.5 rounded-2xl bg-emerald-50/90 border-2 border-emerald-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-emerald-500 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-sm">
-            $
-          </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-black uppercase tracking-wider text-emerald-900">
-                Total Saved In This Quote
-              </span>
-              <span className="text-[10px] font-bold bg-white text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
-                Locked Rate Guarantee
-              </span>
+      {/* Eco-Route Carbon Reduction & Horizontal Level-Lift Banner */}
+      {quote.ecoEmissionsInfo?.isBestValue && (
+        <div className="mt-4 p-4.5 rounded-2xl bg-emerald-50/90 border border-emerald-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-sm">
+              🌱
             </div>
-            <p className="text-xs text-emerald-900 mt-0.5">
-              {billingUpfrontSavings > 0
-                ? `You save $${billingUpfrontSavings} through advance billing discounts`
-                : `You save $${monthlyCubicSavings}/mo compared to standard portable storage cubic rates`}
-              {quote.totalDiscount > 0 ? ` + $${quote.totalDiscount} promo discount applied` : ''}.
-            </p>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-950">
+                  Eco-Optimized Delivery Window
+                </span>
+                <span className="text-[10px] font-bold bg-white text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
+                  {quote.ecoEmissionsInfo.co2SavedKg} kg CO₂ Emissions Prevented
+                </span>
+                {quote.ecoEmissionsInfo.incentiveMode === 'dollar_discount' && quote.ecoEmissionsInfo.discountAud > 0 && (
+                  <span className="text-[10px] font-black bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full">
+                    ${quote.ecoEmissionsInfo.discountAud} Discount Applied ({quote.ecoEmissionsInfo.discountPercent}% Savings)
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-emerald-900 mt-1 leading-relaxed">
+                Your delivery clusters with local fleet routes, cutting ~26 km in redundant truck transit.
+                <span className="font-semibold block sm:inline sm:ml-1 text-emerald-950">
+                  Portabox uses advanced horizontal level-lift trucks — keeping your container 100% flat with zero tilting.
+                </span>
+              </p>
+            </div>
+          </div>
+          <div className="text-left sm:text-right shrink-0">
+            <div className="text-2xl font-black text-emerald-800 font-mono">
+              -{quote.ecoEmissionsInfo.co2SavedKg} kg
+            </div>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700">
+              Carbon Avoided
+            </span>
           </div>
         </div>
-        <div className="text-left sm:text-right shrink-0">
-          <div className="text-3xl font-black text-emerald-700 font-mono">
-            ${totalSavedDisplay}
-          </div>
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
-            Total Savings
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Quote Breakdown Items */}
       <div className="mt-6 divide-y divide-slate-100 border border-slate-200/80 rounded-2xl p-5 bg-slate-50/40 space-y-4">
@@ -442,6 +491,38 @@ export const Step5Quote: React.FC<Step5QuoteProps> = ({
               </div>
             </div>
           ))}
+
+          {/* Applied Promotional Discount Row in Breakdown */}
+          {quote.totalDiscount > 0 && (
+            <div className="pt-3 pb-1 border-t border-emerald-200">
+              <div className="p-3.5 rounded-xl border border-emerald-300 bg-emerald-50/90 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-extrabold text-emerald-950 text-xs sm:text-sm">
+                        Promotional Discount {quote.appliedPromoCode ? `(${quote.appliedPromoCode})` : ''}
+                      </span>
+                      <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-600 text-white px-2 py-0.5 rounded-full">
+                        APPLIED
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-emerald-800 mt-0.5">
+                      {quote.appliedPromotions?.[0]?.description || `$${quote.totalDiscount} discount applied to first payment`}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="font-mono font-black text-base text-emerald-700">
+                    -${quote.totalDiscount}
+                  </span>
+                  <div className="text-[10px] text-emerald-600 font-bold">
+                    Deducted at checkout
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -460,82 +541,157 @@ export const Step5Quote: React.FC<Step5QuoteProps> = ({
         </div>
 
         {/* Check out our competitors prices container */}
-        <details className="group border border-slate-200 rounded-xl bg-white p-3.5 transition-all">
-          <summary className="flex items-center justify-between cursor-pointer list-none select-none text-xs font-bold text-[#0b2942]">
+        <details className="group border border-slate-200 rounded-xl bg-white p-4 transition-all">
+          <summary className="flex items-center justify-between cursor-pointer list-none select-none text-xs font-bold text-[#0b2942] hover:text-[#00c0f3] transition-colors">
             <span className="flex items-center gap-2 text-[#00c0f3]">
-              <TrendingDown className="w-4 h-4" />
+              <TrendingDown className="w-4 h-4 shrink-0" />
               <span className="text-[#0b2942] font-black">Check out our competitors prices</span>
             </span>
-            <span className="text-xs text-[#00c0f3] font-semibold group-open:rotate-180 transition-transform">
-              ▼
-            </span>
+            <ChevronDown className="w-4 h-4 text-[#00c0f3] group-open:rotate-180 transition-transform shrink-0" />
           </summary>
 
           <div className="pt-3 mt-3 border-t border-slate-100 space-y-3 text-xs">
             <p className="text-slate-600 leading-relaxed text-xs">
-              Portable storage in Australia is frequently leased in smaller 7 m³ to 10 m³ pods with significantly higher rates per cubic meter. Portabox provides full-size container capacity with substantially lower cost per cubic meter.
+              Portable storage in Australia is frequently in smaller 7 m³ to 10 m³ containers with significantly higher rates per cubic meter. Portabox provides full-size container capacity with substantially lower cost per cubic meter.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">Standard Industry Benchmark</span>
-                <span className="text-xl font-bold font-mono text-slate-700">$15.20 / m³</span>
-                <p className="text-[11px] text-slate-500 mt-0.5">${marketMonthlyCost}/month equivalent for {totalVolumeM3} m³</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              {/* 1. Monthly Storage Rate Comparison */}
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">
+                  1. Monthly Storage Rate ({totalVolumeM3} m³)
+                </span>
+                <div className="flex justify-between items-baseline text-xs">
+                  <span className="text-slate-600">Smaller containers ($15.20/m³):</span>
+                  <span className="font-mono font-bold text-slate-700">${marketMonthlyCost}/mo</span>
+                </div>
+                <div className="flex justify-between items-baseline text-xs">
+                  <span className="text-slate-900 font-semibold">Portabox (${portaboxRatePerM3}/m³):</span>
+                  <span className="font-mono font-bold text-[#00c0f3]">${quote.monthlyStorageFee}/mo</span>
+                </div>
+                <div className="pt-1.5 border-t border-slate-200 text-[11px] text-emerald-700 font-bold">
+                  ✓ Save ${monthlyCubicSavings}/mo on storage ({cubicSavingsPercent}% lower rate)
+                </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-sky-50/80 border border-[#00c0f3]/40">
-                <span className="text-[10px] uppercase font-bold text-[#00c0f3] block">Portabox ({quote.containerName})</span>
-                <span className="text-xl font-bold font-mono text-[#0b2942]">${portaboxRatePerM3} / m³</span>
-                <p className="text-[11px] text-emerald-700 font-semibold mt-0.5">${quote.monthlyStorageFee}/month · {cubicSavingsPercent}% lower cost</p>
+              {/* 2. Excess Delivery Charges for Multiple Smaller Containers */}
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">
+                  2. Excess Container Delivery Fees
+                </span>
+                <div className="flex justify-between items-baseline text-xs">
+                  <span className="text-slate-600">{competitorSmallContainersCount} smaller containers needed:</span>
+                  <span className="font-mono font-bold text-slate-700">${competitorDeliveryCost}</span>
+                </div>
+                <div className="flex justify-between items-baseline text-xs">
+                  <span className="text-slate-900 font-semibold">{quote.containerCount} Portabox container{quote.containerCount > 1 ? 's' : ''}:</span>
+                  <span className="font-mono font-bold text-[#00c0f3]">${portaboxDeliveryCost}</span>
+                </div>
+                <div className="pt-1.5 border-t border-slate-200 text-[11px] text-emerald-700 font-bold">
+                  ✓ Save ${excessDeliveryCharges} in excess delivery trips avoided
+                </div>
+              </div>
+            </div>
+
+            {/* Combined Savings Total */}
+            <div className="p-3.5 rounded-xl bg-emerald-500 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+              <div>
+                <span className="text-xs font-black uppercase tracking-wider block">
+                  First-Month Combined Savings
+                </span>
+                <span className="text-[11px] text-emerald-100">
+                  Storage rate saving (${monthlyCubicSavings}) + excess delivery charges avoided (${excessDeliveryCharges})
+                </span>
+              </div>
+              <div className="text-left sm:text-right shrink-0">
+                <span className="text-2xl font-black font-mono">
+                  ${firstMonthTotalSavings}
+                </span>
+                <div className="text-[10px] text-emerald-100 font-bold">
+                  Total First-Month Advantage
+                </div>
               </div>
             </div>
 
             <p className="text-[10px] text-slate-400 italic">
-              Comparison data benchmarked: September 2026 across Adelaide, Melbourne, Sydney, and Brisbane.
+              Comparison data benchmarked: September 2026 across Adelaide, Melbourne, Sydney, and Brisbane. Includes excess delivery fees incurred by requiring multiple 7-9 m³ units instead of 1 full-size Portabox container.
             </p>
           </div>
         </details>
       </div>
 
-      {/* Promo Code Input */}
-      <div className="mt-6 flex flex-col sm:flex-row items-center gap-2">
-        <div className="relative flex-1 w-full">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-            <Tag className="w-3.5 h-3.5" />
+      {/* Promo Code Input - Removed and NOT displayed once user has paid */}
+      {!hasPaid ? (
+        <div className="mt-6 space-y-2">
+          <div className="flex flex-col sm:flex-row items-center gap-2">
+            <div className="relative flex-1 w-full">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Tag className="w-3.5 h-3.5" />
+              </div>
+              <input
+                type="text"
+                value={promoCodeInput}
+                onChange={(e) => {
+                  setPromoCodeInput(e.target.value.toUpperCase());
+                  if (promoFeedback) setPromoFeedback(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleApplyPromo();
+                  }
+                }}
+                placeholder="Have a promo code? (e.g. FREEDEL, HALFPRICE, SAVE50)"
+                className="w-full pl-9 pr-3 py-2.5 text-xs font-semibold rounded-xl border border-slate-200 uppercase bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00c0f3]"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleApplyPromo}
+              className="w-full sm:w-auto px-5 py-2.5 bg-[#0b2942] hover:bg-[#081e30] text-white font-bold text-xs rounded-xl transition-colors cursor-pointer"
+            >
+              Apply Code
+            </button>
           </div>
-          <input
-            type="text"
-            value={promoCodeInput}
-            onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
-            placeholder="Have a promo code? (e.g. FREEDEL, HALFPRICE, SUNSHINE50)"
-            className="w-full pl-9 pr-3 py-2.5 text-xs font-semibold rounded-xl border border-slate-200 uppercase bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00c0f3]"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={handleApplyPromo}
-          className="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition-colors cursor-pointer"
-        >
-          Apply Code
-        </button>
-      </div>
-      {promoFeedback && (
-        <p className="text-xs text-emerald-600 font-medium mt-1">{promoFeedback}</p>
-      )}
 
-      {/* Stripe Elements & Google Pay 'Pay Now' Section */}
-      <StripePaymentSection
-        quote={quote}
-        customerData={customerData}
+          <p className="text-[11px] text-slate-400">
+            Note: Only one promo code can be applied at a time (entering a code will replace any slot efficiency discount).
+          </p>
+
+          {promoFeedback && (
+            <div
+              className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-between gap-2 animate-in fade-in duration-200 ${
+                promoFeedback.type === 'success'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                  : 'bg-red-50 border-red-200 text-red-700'
+              }`}
+            >
+              <span>{promoFeedback.message}</span>
+              {promoFeedback.type === 'success' && quote.totalDiscount > 0 && (
+                <span className="font-mono font-black text-emerald-700 shrink-0">
+                  -${quote.totalDiscount}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      ) : null}
+
+      {/* Braintree Hosted Fields & PayPal / Digital Wallets 'Pay Now' Section */}
+      <BraintreePaymentSection
+        amount={quote.firstPaymentTotal}
+        customerName={customerData?.firstName ? `${customerData.firstName}` : undefined}
+        customerEmail={customerData?.email}
+        customerPhone={customerData?.mobile}
+        orderDescription={`${quote.containerName} delivery to ${quote.originPostcode.suburb} ${quote.originPostcode.state}`}
+        billingCycleLabel={quote.billingCycle.replace(/_/g, ' ')}
         onPaymentSuccess={(result) => {
           setIsBooked(true);
+          setHasPaid(true);
           if (onPaymentSuccess) {
             onPaymentSuccess(result);
           }
         }}
-        onInitiateCalendarBooking={handleInitiateCalendarBooking}
-        isCalendarBooked={isBooked}
-        calendarEventLink={calendarEventLink}
       />
 
       {/* Booking Next Steps & Call to Action */}

@@ -9,6 +9,10 @@ import { Step5SendQuote } from './components/Step5SendQuote';
 import { Step5Quote } from './components/Step5Quote';
 import { Step6Confirmation } from './components/Step6Confirmation';
 import { AdminPortal } from './components/AdminPortal';
+import { CustomerPortal } from './components/CustomerPortal';
+import { CallCenterCalendarPortal } from './components/CallCenterCalendarPortal';
+import { upsertCustomerFromLead } from './services/customerPortalService';
+import { autoSyncEventToSmartsheet } from './services/smartsheetService';
 import {
   AUSTRALIAN_POSTCODES,
   PostcodeRecord,
@@ -34,9 +38,9 @@ import {
 } from './types/quote';
 
 /**
- * The postcode boxes on portabox.au hand off to this app, carrying what the
- * visitor already typed as ?postcode=3000. Without this the app opened on its
- * built-in default and asked them for it a second time.
+ * The postcode boxes on the website hand off to this app, carrying what the
+ * visitor already typed as ?postcode=3000. Without this the app opens on its
+ * built-in default and asks them for it a second time.
  *
  * searchPostcodes resolves anything valid: one of the 63 known suburbs, or a
  * synthetic record placed by state range. Anything else is ignored and the
@@ -45,7 +49,7 @@ import {
 function postcodeFromUrl(): PostcodeRecord | null {
   if (typeof window === 'undefined') return null;
   const raw = new URLSearchParams(window.location.search).get('postcode');
-  if (!raw || !/^\d{4}$/.test(raw.trim())) return null;
+  if (!raw || !/^[0-9]{4}$/.test(raw.trim())) return null;
   return searchPostcodes(raw.trim())[0] || null;
 }
 
@@ -54,6 +58,8 @@ export default function App() {
   const [config, setConfig] = useState<AppConfig>(loadAppConfig());
   const [leads, setLeads] = useState<CustomerLead[]>(loadCustomerLeads());
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isCustomerPortalOpen, setIsCustomerPortalOpen] = useState(false);
+  const [isCallCenterOpen, setIsCallCenterOpen] = useState(false);
 
   // Quote Flow State
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -165,6 +171,9 @@ export default function App() {
   const handleSaveConfig = (newConfig: AppConfig) => {
     setConfig(newConfig);
     saveAppConfig(newConfig);
+    if (newConfig.enableCallCenterDispatch === false) {
+      setIsCallCenterOpen(false);
+    }
   };
 
   // Lead status update
@@ -219,6 +228,19 @@ export default function App() {
       setLeads(updatedLeads);
       saveCustomerLeads(updatedLeads);
       setSubmittedLead(newLead);
+
+      // Automatically sync customer account into Customer Portal & Admin Accounts
+      try {
+        upsertCustomerFromLead({
+          firstName: customerData.firstName,
+          email: customerData.email,
+          mobile: customerData.mobile,
+          quote: activeQuote,
+        });
+        autoSyncEventToSmartsheet(`New Customer Quote (${activeQuote.containerName})`, newLead.id);
+      } catch (err) {
+        console.error('Customer portal & smartsheet sync error:', err);
+      }
     }
 
     // Step 7 Requirement: "send quote button-> show the last page with the final quote page with the detailed quote information information"
@@ -233,16 +255,32 @@ export default function App() {
         paymentStatus: 'Paid',
         paymentTransactionId: paymentResult.transactionId,
         paymentAmount: paymentResult.amount,
-        paymentMethod: paymentResult.cardBrand === 'Google Pay' ? 'Google Pay' : 'Credit Card (Stripe)',
+        paymentMethod: paymentResult.paymentMethod || 'Credit Card (Braintree)',
         notes: [
           ...(submittedLead.notes || []),
-          `Payment of $${paymentResult.amount} successfully verified via ${paymentResult.cardBrand} (Ref: ${paymentResult.transactionId}) at ${new Date().toLocaleTimeString()}.`,
+          `Payment of $${paymentResult.amount} successfully verified via Braintree Payments (Ref: ${paymentResult.transactionId}) at ${new Date().toLocaleTimeString()}.`,
         ],
       };
       setSubmittedLead(updatedLead);
       const updatedLeads = leads.map((l) => (l.id === submittedLead.id ? updatedLead : l));
       setLeads(updatedLeads);
       saveCustomerLeads(updatedLeads);
+
+      // Sync payment confirmation and active order to customer portal & Smartsheet
+      try {
+        upsertCustomerFromLead({
+          firstName: updatedLead.firstName,
+          email: updatedLead.email,
+          mobile: updatedLead.mobile,
+          quote: updatedLead.quote,
+          paymentTransactionId: paymentResult.transactionId,
+          paymentAmount: paymentResult.amount,
+          paymentMethod: paymentResult.paymentMethod || 'Credit Card (Braintree)',
+        });
+        autoSyncEventToSmartsheet(`Braintree Payment ($${paymentResult.amount}) Settled`, updatedLead.id);
+      } catch (err) {
+        console.error('Customer payment & smartsheet sync error:', err);
+      }
     }
   };
 
@@ -273,14 +311,45 @@ export default function App() {
         currentStep={currentStep}
         onBack={handleBack}
         isAdminOpen={isAdminOpen}
-        onToggleAdmin={() => setIsAdminOpen(!isAdminOpen)}
+        onToggleAdmin={() => {
+          setIsAdminOpen(!isAdminOpen);
+          if (!isAdminOpen) setIsCallCenterOpen(false);
+        }}
+        isCallCenterOpen={config.enableCallCenterDispatch !== false ? isCallCenterOpen : false}
+        onToggleCallCenter={
+          config.enableCallCenterDispatch !== false
+            ? () => {
+                setIsCallCenterOpen(!isCallCenterOpen);
+                if (!isCallCenterOpen) setIsAdminOpen(false);
+              }
+            : undefined
+        }
+        onOpenCustomerPortal={() => setIsCustomerPortalOpen(true)}
         phone={config.phone}
       />
 
       {/* Main Body */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-8">
-        {/* If Admin is Open */}
-        {isAdminOpen ? (
+        {/* If Call Center Dispatch is Open */}
+        {isCallCenterOpen && config.enableCallCenterDispatch !== false ? (
+          <CallCenterCalendarPortal
+            onClose={() => setIsCallCenterOpen(false)}
+            onApplyCustomerIncentive={(slotId) => {
+              setSelectedSlot({
+                id: slotId,
+                label: slotId === 'morning' ? 'Morning Window' : slotId === 'midday' ? 'Midday Window' : 'Afternoon Window',
+                timeRange: slotId === 'morning' ? '09:00 AM – 11:30 AM' : slotId === 'midday' ? '11:30 AM – 02:00 PM' : '02:00 PM – 04:30 PM',
+                startHour: slotId === 'morning' ? 9 : slotId === 'midday' ? 11 : 14,
+                startMinute: slotId === 'midday' ? 30 : 0,
+                endHour: slotId === 'morning' ? 11 : slotId === 'midday' ? 14 : 16,
+                endMinute: 30,
+                available: true,
+                slotsRemaining: 3,
+              });
+              setIsCallCenterOpen(false);
+            }}
+          />
+        ) : isAdminOpen ? (
           <AdminPortal
             config={config}
             leads={leads}
@@ -431,14 +500,27 @@ export default function App() {
           <div className="flex items-center gap-6">
             <span>Adelaide · Melbourne · Sydney · Brisbane · Sunshine Coast</span>
             <button
-              onClick={() => setIsAdminOpen(true)}
+              onClick={() => setIsCustomerPortalOpen(true)}
               className="text-[#00c0f3] hover:underline font-semibold cursor-pointer"
+            >
+              Customer Portal
+            </button>
+            <button
+              onClick={() => setIsAdminOpen(true)}
+              className="text-slate-600 hover:text-slate-900 font-semibold cursor-pointer"
             >
               Admin Portal
             </button>
           </div>
         </div>
       </footer>
+
+      {/* Customer Portal Modal */}
+      <CustomerPortal
+        isOpen={isCustomerPortalOpen}
+        onClose={() => setIsCustomerPortalOpen(false)}
+        phone={config.phone}
+      />
     </div>
   );
 }

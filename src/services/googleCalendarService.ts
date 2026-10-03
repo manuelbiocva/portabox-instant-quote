@@ -14,9 +14,9 @@ import { DeliverySlotWindow, DepotCalendarConfig, MetroHub } from '../types/quot
 //
 // The Google Calendar slots are optional — firebase-applet-config.json ships
 // blank and the app is meant to fall back to the static delivery windows. It
-// did not: initializeApp throws auth/invalid-api-key on an empty key, and
-// because this runs at module scope the throw landed before React mounted and
-// took the whole page down with it. Firebase is now only touched when a real
+// does not: initializeApp throws auth/invalid-api-key on an empty key, and
+// because this runs at module scope the throw lands before React mounts and
+// takes the whole page down with it. Firebase is only touched when a real
 // config is present, and everything below treats a null auth as "signed out".
 const hasFirebaseConfig = Boolean(firebaseConfig?.apiKey && firebaseConfig?.projectId);
 const app = hasFirebaseConfig
@@ -114,8 +114,8 @@ export const initCalendarAuth = (
   onAuthSuccess?: (user: User, token: string) => void,
   onAuthFailure?: () => void
 ) => {
-  // No Firebase project configured: report signed-out once and do nothing more,
-  // which is what sends DeliverySlotPicker to the static windows.
+  // No Firebase project configured: report signed-out once and do nothing
+  // more, which is what sends DeliverySlotPicker to the static windows.
   if (!auth) {
     if (onAuthFailure) onAuthFailure();
     return () => {};
@@ -134,13 +134,13 @@ export const initCalendarAuth = (
  * Sign in with Google to grant Calendar access
  */
 export const signInWithGoogleCalendar = async (): Promise<{ user: User; accessToken: string }> => {
-  if (!auth) {
-    throw new Error(
-      'Google Calendar is not configured. Fill in firebase-applet-config.json to enable it.'
-    );
-  }
   try {
     isSigningIn = true;
+    if (!auth) {
+      throw new Error(
+        'Google Calendar is not configured. Fill in firebase-applet-config.json to enable it.'
+      );
+    }
     const result = await signInWithPopup(auth, provider);
     const credential = GoogleAuthProvider.credentialFromResult(result);
     if (!credential?.accessToken) {
