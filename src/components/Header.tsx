@@ -10,8 +10,16 @@ interface HeaderProps {
   siteUrl?: string;
 }
 
-/** Where the back arrow goes when there is no step to go back to. */
-const SITE_URL = (import.meta.env.VITE_SITE_URL as string) || 'https://portabox.au/';
+/**
+ * Where the back arrow goes when there is no step to go back to.
+ *
+ * TEMPORARY: the rebuilt site, not the live one. Anyone reviewing this quote
+ * came from the rebuild, and sending them back to portabox.au would drop them
+ * on a different site mid-review. Change this to https://portabox.au/ — or
+ * set VITE_SITE_URL in Vercel, which wins over it — once the rebuild is the
+ * site people actually arrive from.
+ */
+const SITE_URL = (import.meta.env.VITE_SITE_URL as string) || 'https://portabox-website.vercel.app/';
 
 /* One shape for the arrow whether it steps back through the quote or leaves
    it, so the corner does not change under people as they move through. */

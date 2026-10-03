@@ -63,7 +63,7 @@ them in devtools before paying.
 | File | What it is |
 | --- | --- |
 | `firebase-applet-config.json` | **Ships blank.** Fill in with Portabox's own Firebase project to enable the Google Calendar delivery slots. Left empty, the app falls back to static slots and everything else works. |
-| `.env.local` | Optional. `VITE_STRIPE_PUBLISHABLE_KEY` loads the real Stripe.js for the test-card UI. `VITE_SITE_URL` is where the header's back arrow goes from step 1, when there is nothing in the tab's history to go back to — it defaults to `https://portabox.au/`. See `.env.local.example`. |
+| `.env.local` | Optional. `VITE_STRIPE_PUBLISHABLE_KEY` loads the real Stripe.js for the test-card UI. `VITE_SITE_URL` is where the header's back arrow goes from step 1, when there is nothing in the tab's history to go back to. It currently defaults to `https://portabox-website.vercel.app/`, the rebuilt site — **temporary**, until the rebuild is what people arrive from, then it becomes `https://portabox.au/`. See `.env.local.example`. |
 
 The config that came with the source carried a live API key and OAuth client for
 `gen-lang-client-0776892310` — the original developer's Google Cloud project,
